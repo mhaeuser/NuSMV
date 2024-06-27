@@ -1413,8 +1413,7 @@ int BddFsm_dump_fsm(BddFsm_ptr self,
                     boolean invar, boolean trans, boolean fair,
                     boolean reachable, FILE* outfile)
 {
-  const BddFsm_ptr fsm = BDD_FSM(NuSMVEnv_get_value(env, ENV_BDD_FSM));
-  const BddEnc_ptr bdd_enc = BddFsm_get_bdd_encoding(fsm);
+  const BddEnc_ptr bdd_enc = BddFsm_get_bdd_encoding(self);
   const DDMgr_ptr dd = BddEnc_get_dd_manager(bdd_enc);
   const StreamMgr_ptr streams =
     STREAM_MGR(NuSMVEnv_get_value(env, ENV_STREAM_MANAGER));
@@ -1435,11 +1434,11 @@ int BddFsm_dump_fsm(BddFsm_ptr self,
       const char* label;
       bdd_ptr bdd;
     } info[] = {
-      { init, "Init", BddFsm_get_init(fsm) },
-      { invar, "Invar", BddFsm_get_state_constraints(fsm) },
-      { trans, "Trans", BddFsm_get_monolithic_trans_bdd(fsm) },
-      { fair, "Fair", BddFsm_get_fair_states(fsm) },
-      { reachable, "Reachables", BddFsm_get_reachable_states(fsm) },
+      { init, "Init", BddFsm_get_init(self) },
+      { invar, "Invar", BddFsm_get_state_constraints(self) },
+      { trans, "Trans", BddFsm_get_monolithic_trans_bdd(self) },
+      { fair, "Fair", BddFsm_get_fair_states(self) },
+      { reachable, "Reachables", BddFsm_get_reachable_states(self) },
     };
     int i, idx;
     int entries = init + invar + trans + fair + reachable;
