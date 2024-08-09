@@ -1397,7 +1397,7 @@ static void print_result(NuSMVEnv_ptr env, Prop_ptr p)
               p, get_prop_print_method(opts));
 
   if (Prop_False == Prop_get_status(p)) {
-    StreamMgr_print_output(streams,  " is false\n");
+    StreamMgr_print_output(streams,  "is false\n");
 
     if (opt_counter_examples(opts)) {
       if (Prop_get_trace(p) > 0) {
@@ -1415,7 +1415,7 @@ static void print_result(NuSMVEnv_ptr env, Prop_ptr p)
     }
   }
   else if(Prop_True == Prop_get_status(p)) {
-    StreamMgr_print_output(streams,  " is true\n");
+    StreamMgr_print_output(streams,  "is true\n");
   }
   else if((Prop_Unchecked == Prop_get_status(p)) &&
           (Prop_get_trace(p) > 0)) {
@@ -1424,7 +1424,7 @@ static void print_result(NuSMVEnv_ptr env, Prop_ptr p)
     print_invar(StreamMgr_get_output_ostream(streams),
                 p, get_prop_print_method(opts));
 
-    StreamMgr_print_output(streams,  " is true or false : the induction fails\n");
+    StreamMgr_print_output(streams,  "is true or false : the induction fails\n");
 
     if (opt_counter_examples(opts)) {
       /* Print the trace using default plugin */
