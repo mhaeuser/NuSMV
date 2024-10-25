@@ -299,14 +299,65 @@ boolean TypeChecker_check_property(TypeChecker_ptr self,
 
 
     switch (Prop_get_type(property)) {
-    case Prop_NoType:  error_unreachable_code(); /* incorrect property */
-    case Prop_Ctl:     kind = SPEC;      break;
-    case Prop_Ltl:     kind = LTLSPEC;   break;
-    case Prop_Psl:     kind = PSLSPEC;   break;
-    case Prop_Invar:   kind = INVARSPEC; break;
-    case Prop_Compute: kind = COMPUTE;   break;
+    case Prop_NoType:
+      error_unreachable_code(); /* incorrect property */
+    case Prop_Ctl:
+      switch (Prop_get_mode(property)) {
+      case Prop_Prove:
+        kind = SPEC;
+        break;
+      case Prop_Disprove:
+        kind = DISSPEC;
+        break;
+      default:
+        error_unreachable_code();
+      }
+      break;
+    case Prop_Ltl:
+      switch (Prop_get_mode(property)) {
+      case Prop_Prove:
+        kind = LTLSPEC;
+        break;
+      case Prop_Disprove:
+        kind = DISLTLSPEC;
+        break;
+      default:
+        error_unreachable_code();
+      }
+      break;
+    case Prop_ELtl:
+      switch (Prop_get_mode(property)) {
+      case Prop_Prove:
+        kind = ELTLSPEC;
+        break;
+      case Prop_Disprove:
+        kind = DISELTLSPEC;
+        break;
+      default:
+        error_unreachable_code();
+      }
+      break;
+    case Prop_Psl:
+      kind = PSLSPEC;
+      break;
+    case Prop_Invar:
+      switch (Prop_get_mode(property)) {
+      case Prop_Prove:
+        kind = INVARSPEC;
+        break;
+      case Prop_Disprove:
+        kind = DISINVARSPEC;
+        break;
+      default:
+        error_unreachable_code();
+      }
+      break;
+    case Prop_Compute:
+      kind = COMPUTE;
+      break;
 
-    default:           error_unreachable_code();
+    default:
+      error_unreachable_code();
     } /* switch */
 
     nusmv_yylineno = node_get_lineno(Prop_get_expr(property));

@@ -314,14 +314,44 @@ int printer_sexp_core_print_node(PrinterBase_ptr self, node_ptr node,
       _PRINT(")");
     break;
 
+  case DISSPEC:
+    result = _PRINT("\n(DISPROVE SPEC ") &&
+      _THROW(car(node), 0) &&
+      _PRINT(")");
+    break;
+
   case LTLSPEC:
     result = _PRINT("\n(LTLSPEC ") &&
       _THROW(car(node), 0) &&
       _PRINT(")");
     break;
 
+  case DISLTLSPEC:
+    result = _PRINT("\n(DISPROVE LTLSPEC ") &&
+      _THROW(car(node), 0) &&
+      _PRINT(")");
+    break;
+
+  case ELTLSPEC:
+    result = _PRINT("\n(ELTLSPEC ") &&
+      _THROW(car(node), 0) &&
+      _PRINT(")");
+    break;
+
+  case DISELTLSPEC:
+    result = _PRINT("\n(DISPROVE ELTLSPEC ") &&
+      _THROW(car(node), 0) &&
+      _PRINT(")");
+    break;
+
   case INVARSPEC:
     result = _PRINT("\n(INVARSPEC ") &&
+      _THROW(car(node), 0) &&
+      _PRINT(")");
+    break;
+
+  case DISINVARSPEC:
+    result = _PRINT("\n(DISPROVE INVARSPEC ") &&
       _THROW(car(node), 0) &&
       _PRINT(")");
     break;

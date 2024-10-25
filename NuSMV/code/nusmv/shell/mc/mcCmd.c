@@ -260,7 +260,7 @@ int CommandCheckCtlSpec(NuSMVEnv_ptr env, int argc, char** argv)
   if (formula != NIL(char)) {
     SymbTable_ptr st = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
     prop_no = PropDb_prop_parse_and_add(prop_db, st,
-                                        formula, Prop_Ctl, Nil);
+                                        formula, Prop_Ctl, Prop_Prove, Nil);
     if (prop_no == -1) { status = 1; goto check_ctlspec_exit; }
     CATCH(errmgr) {
       PropDb_verify_prop_at_index(prop_db, prop_no);
@@ -638,7 +638,7 @@ int CommandCheckInvar(NuSMVEnv_ptr env, int argc, char** argv)
   if (formula != NIL(char)) {
     SymbTable_ptr st = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
     prop_no = PropDb_prop_parse_and_add(prop_db, st,
-                                        formula, Prop_Invar, Nil);
+                                        formula, Prop_Invar, Prop_Prove, Nil);
     if (prop_no == -1) { status = 1; goto check_invar_exit; }
 
     prop = PropDb_get_prop_at_index(prop_db, prop_no);
@@ -962,7 +962,7 @@ int CommandCheckPslSpec(NuSMVEnv_ptr env, int argc, char** argv)
   if (formula != NIL(char)) {
     SymbTable_ptr st = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
     prop_no = PropDb_prop_parse_and_add(prop_db, st,
-                                        formula, Prop_Psl, Nil);
+                                        formula, Prop_Psl, Prop_Prove, Nil);
     if (prop_no == -1) { status = 1; goto check_psl_exit; }
   }
 
@@ -1192,7 +1192,7 @@ static int mc_cmd_check_compute(NuSMVEnv_ptr env, int argc, char **argv,
   if (formula != NIL(char)) {
     SymbTable_ptr st = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
     prop_no = PropDb_prop_parse_and_add(prop_db, st,
-                                        formula, Prop_Compute, Nil);
+                                        formula, Prop_Compute, Prop_Prove, Nil);
     if (prop_no == -1) { status = 1; goto check_compute_exit; }
     CATCH(errmgr) {
       PropDb_verify_prop_at_index(prop_db, prop_no);

@@ -191,9 +191,14 @@ checker_statement_check_expr(CheckerBase_ptr self,
   case JUSTICE:
   case COMPASSION:
   case SPEC:
+  case DISSPEC:
   case LTLSPEC:
+  case DISLTLSPEC:
+  case ELTLSPEC:
+  case DISELTLSPEC:
   case PSLSPEC:
   case INVARSPEC:
+  case DISINVARSPEC:
   case ISA:
   case CONSTRAINT:
   case MODULE:
@@ -461,9 +466,14 @@ checker_statement_viol_handler(CheckerBase_ptr self,
     case JUSTICE:
     case COMPASSION:
     case SPEC:
+    case DISSPEC:
     case LTLSPEC:
+    case DISLTLSPEC:
+    case ELTLSPEC:
+    case DISELTLSPEC:
     case PSLSPEC:
     case INVARSPEC:
+    case DISINVARSPEC:
     case CONSTRAINT:
     case COMPUTE:
     case PROCESS: /*PROCESS is artificial contract to check 'running' symbols*/
@@ -528,9 +538,14 @@ static void print_operator(FILE* output_stream, node_ptr expr)
   case JUSTICE:      fprintf(output_stream,"JUSTICE"); return;
   case COMPASSION:   fprintf(output_stream,"COMPASSION"); return;
   case SPEC:      fprintf(output_stream,"SPEC"); return;
+  case DISSPEC:   fprintf(output_stream,"DISPROVE SPEC"); return;
   case LTLSPEC:   fprintf(output_stream,"LTLSPEC"); return;
+  case DISLTLSPEC:   fprintf(output_stream,"DISPROVE LTLSPEC"); return;
+  case ELTLSPEC:  fprintf(output_stream,"ELTLSPEC"); return;
+  case DISELTLSPEC:  fprintf(output_stream,"DISPROVE ELTLSPEC"); return;
   case PSLSPEC:   fprintf(output_stream,"PSLSPEC"); return;
   case INVARSPEC: fprintf(output_stream,"INVARSPEC"); return;
+  case DISINVARSPEC: fprintf(output_stream,"DISPROVE INVARSPEC"); return;
   case COMPUTE:   fprintf(output_stream,"COMPUTE"); return;
   case DEFINE:    fprintf(output_stream,"\n(DEFINE "); return;
   case ISA:    fprintf(output_stream,"\n(ISA "); return;

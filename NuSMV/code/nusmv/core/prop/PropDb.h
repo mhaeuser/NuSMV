@@ -391,6 +391,7 @@ void PropDb_print_all_status_type(const PropDb_ptr self,
 int
 PropDb_check_property(const PropDb_ptr self,
                       const Prop_Type pt,
+                      const Prop_Mode pm,
                       const char* formula,
                       const int prop_no);
 
@@ -476,13 +477,14 @@ void PropDb_verify_all_type_wrapper(PropDb_ptr const self,
   a string. If the formula is correct, it is added to the
   property database and its index is returned.
   Otherwise, -1 is returned.
-  Valid types are Prop_Ctl, Prop_Ltl, Prop_Psl, Prop_Invar and Prop_Compute.
+  Valid types are Prop_Ctl, Prop_Ltl, Prop_ELtl, Prop_Psl, Prop_Invar and Prop_Compute.
   If expr_name is not NULL, it is set as the name of the property.
 */
 int PropDb_prop_parse_and_add(const PropDb_ptr self,
                               SymbTable_ptr symb_table,
                               const char* str,
                               const Prop_Type type,
+                              const Prop_Mode mode,
                               const node_ptr expr_name);
 
 /*!
@@ -505,8 +507,8 @@ PropDb_PrintFmt PropDb_get_print_fmt(const PropDb_ptr self);
 */
 int
 PropDb_fill(PropDb_ptr self, SymbTable_ptr symb_table,
-            node_ptr, node_ptr, node_ptr,
-            node_ptr, node_ptr);
+            node_ptr, node_ptr, node_ptr, node_ptr, node_ptr, node_ptr,
+            node_ptr, node_ptr, node_ptr, node_ptr);
 
 /*!
   \methodof PropDb
@@ -529,7 +531,7 @@ boolean PropDb_add(PropDb_ptr self, Prop_ptr);
 */
 int
 PropDb_prop_create_and_add(PropDb_ptr self, SymbTable_ptr symb_table,
-                           node_ptr, Prop_Type);
+                           node_ptr, Prop_Type, Prop_Mode);
 
 /*!
   \methodof PropDb

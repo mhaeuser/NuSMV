@@ -225,6 +225,7 @@ void CInit_batch_main(NuSMVEnv_ptr env)
 
         switch (Prop_get_type(prop)) {
           case Prop_Ltl:
+          case Prop_ELtl:
             /* skip if -ils option is given */
             if (!opt_ignore_ltlspec(opts)) {
               const char* loop = get_bmc_pb_loop(opts);
@@ -386,24 +387,25 @@ void CInit_batch_main(NuSMVEnv_ptr env)
       int prop_no = get_prop_no(opts);
 
       if (-1 != prop_no) {
-        res = PropDb_check_property(prop_db, Prop_NoType, NULL, prop_no);
+        res = PropDb_check_property(prop_db, Prop_NoType, Prop_NoMode, NULL, prop_no);
       }
       else {
         /* Evaluates the Specifications */
         if (!opt_ignore_spec(opts)) {
-          res = PropDb_check_property(prop_db, Prop_Ctl, NULL, prop_no);
+          res = PropDb_check_property(prop_db, Prop_Ctl, Prop_NoMode, NULL, prop_no);
         }
         if (!opt_ignore_compute(opts)) {
-          res |= PropDb_check_property(prop_db, Prop_Compute, NULL, prop_no);
+          res |= PropDb_check_property(prop_db, Prop_Compute, Prop_NoMode, NULL, prop_no);
         }
         if (!opt_ignore_ltlspec(opts)) {
-          res |= PropDb_check_property(prop_db, Prop_Ltl, NULL, prop_no);
+          res |= PropDb_check_property(prop_db, Prop_Ltl, Prop_NoMode, NULL, prop_no);
+          res |= PropDb_check_property(prop_db, Prop_ELtl, Prop_NoMode, NULL, prop_no);
         }
         if (!opt_ignore_pslspec(opts)) {
-          res |= PropDb_check_property(prop_db, Prop_Psl, NULL, prop_no);
+          res |= PropDb_check_property(prop_db, Prop_Psl, Prop_NoMode, NULL, prop_no);
         }
         if (!opt_ignore_invar(opts)) {
-          res |= PropDb_check_property(prop_db, Prop_Invar, NULL, prop_no);
+          res |= PropDb_check_property(prop_db, Prop_Invar, Prop_NoMode, NULL, prop_no);
         }
       }
       if (res)

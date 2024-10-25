@@ -157,9 +157,9 @@ ltl_structcheckltlspec_build_tableau_and_prop_fsm(Ltl_StructCheckLtlSpec_ptr sel
 static void
 ltl_structcheckltlspec_check_compassion(Ltl_StructCheckLtlSpec_ptr self);
 static void
-ltl_structcheckltlspec_check_el_bwd(Ltl_StructCheckLtlSpec_ptr self);
+ltl_structcheckltlspec_check_el_bwd(Ltl_StructCheckLtlSpec_ptr self, boolean existential);
 static void
-ltl_structcheckltlspec_check_el_fwd(Ltl_StructCheckLtlSpec_ptr self);
+ltl_structcheckltlspec_check_el_fwd(Ltl_StructCheckLtlSpec_ptr self, boolean existential);
 static bdd_ptr ltl_clean_bdd(Ltl_StructCheckLtlSpec_ptr, bdd_ptr);
 
 static void compute_loopback_information(Ltl_StructCheckLtlSpec_ptr self,
@@ -173,6 +173,9 @@ void Ltl_CheckLtlSpec(NuSMVEnv_ptr env, Prop_ptr prop)
 {
   const OptsHandler_ptr opts =
     OPTS_HANDLER(NuSMVEnv_get_value(env, ENV_OPTS_HANDLER));
+  boolean existential = Prop_get_type(prop) == Prop_ELtl;
+
+  nusmv_assert(Prop_get_type(prop) == Prop_Ltl || Prop_get_type(prop) == Prop_ELtl);
 
   BddELFwdSavedOptions_ptr elfwd_saved_options = (BddELFwdSavedOptions_ptr) NULL;
   FlatHierarchy_ptr hierarchy = FLAT_HIERARCHY(NuSMVEnv_get_value(env, ENV_FLAT_HIERARCHY));
@@ -200,11 +203,12 @@ void Ltl_CheckLtlSpec(NuSMVEnv_ptr env, Prop_ptr prop)
 
   /* action */
   Ltl_StructCheckLtlSpec_build(cls);
-  Ltl_StructCheckLtlSpec_check(cls);
+  Ltl_StructCheckLtlSpec_check(cls, existential);
 
   Ltl_StructCheckLtlSpec_print_result(cls);
 
-  if (bdd_isnot_false(cls->dd, cls->s0) &&
+  if (!existential &&
+      bdd_isnot_false(cls->dd, cls->s0) &&
       opt_counter_examples(opts)) {
 
     SexpFsm_ptr sexp_fsm; /* needed for trace lanugage */
@@ -338,7 +342,7 @@ void Ltl_StructCheckLtlSpec_build(Ltl_StructCheckLtlSpec_ptr self)
   }
 }
 
-void Ltl_StructCheckLtlSpec_check(Ltl_StructCheckLtlSpec_ptr self)
+void Ltl_StructCheckLtlSpec_check(Ltl_StructCheckLtlSpec_ptr self, boolean existential)
 {
   const NuSMVEnv_ptr env = EnvObject_get_environment(ENV_OBJECT(self));
   const ErrorMgr_ptr errmgr =
@@ -378,10 +382,10 @@ void Ltl_StructCheckLtlSpec_check(Ltl_StructCheckLtlSpec_ptr self)
        now. */
     switch(get_oreg_justice_emptiness_bdd_algorithm(opts)) {
     case BDD_OREG_JUSTICE_EMPTINESS_BDD_ALGORITHM_EL_BWD:
-      ltl_structcheckltlspec_check_el_bwd(self);
+      ltl_structcheckltlspec_check_el_bwd(self, existential);
       break;
     case BDD_OREG_JUSTICE_EMPTINESS_BDD_ALGORITHM_EL_FWD:
-      ltl_structcheckltlspec_check_el_fwd(self);
+      ltl_structcheckltlspec_check_el_fwd(self, existential);
       break;
     default:
       error_unreachable_code();
@@ -389,7 +393,7 @@ void Ltl_StructCheckLtlSpec_check(Ltl_StructCheckLtlSpec_ptr self)
     }
   }
 
-  if (bdd_is_false(self->dd, self->s0)) {
+  if (existential ^ bdd_is_false(self->dd, self->s0)) {
     Prop_set_status(self->prop, Prop_True);
   }
   else {
@@ -411,14 +415,14 @@ void Ltl_StructCheckLtlSpec_print_result(Ltl_StructCheckLtlSpec_ptr self)
 
   /* Prints out the result, if not true explain. */
   StreamMgr_print_output(streams,  "-- ");
-  print_spec(StreamMgr_get_output_ostream(streams),
+  print_name_or_spec(StreamMgr_get_output_ostream(streams),
              self->prop, get_prop_print_method(opts));
 
   if (Prop_get_status(self->prop) == Prop_True){
-    StreamMgr_print_output(streams,  "is true\n");
+    StreamMgr_print_output(streams,  "is true [%s]\n", Prop_get_mode(self->prop) != Prop_Prove ? "failure" : "success");
   }
   else {
-    StreamMgr_print_output(streams,  "is false\n");
+    StreamMgr_print_output(streams,  "is false [%s]\n", Prop_get_mode(self->prop) != Prop_Prove ? "success" : "failure");
   }
 
   StreamMgr_flush_streams(streams);
@@ -823,7 +827,11 @@ ltl_structcheckltlspec_build_tableau_and_prop_fsm(Ltl_StructCheckLtlSpec_ptr sel
                    " (check version of ltl2smv)\n");
   }
   nusmv_assert(Nil == FlatHierarchy_get_ltlspec(hierarchy));
+  nusmv_assert(Nil == FlatHierarchy_get_disltlspec(hierarchy));
+  nusmv_assert(Nil == FlatHierarchy_get_eltlspec(hierarchy));
+  nusmv_assert(Nil == FlatHierarchy_get_diseltlspec(hierarchy));
   nusmv_assert(Nil == FlatHierarchy_get_invarspec(hierarchy));
+  nusmv_assert(Nil == FlatHierarchy_get_disinvarspec(hierarchy));
   nusmv_assert(Nil == FlatHierarchy_get_pslspec(hierarchy));
   nusmv_assert(Nil == FlatHierarchy_get_compute(hierarchy));
   /* ------------------------------------------------------------ */
@@ -876,7 +884,7 @@ ltl_structcheckltlspec_check_compassion(Ltl_StructCheckLtlSpec_ptr self)
   initialized before with Ltl_StructCheckLtlSpec_build.
 */
 static void
-ltl_structcheckltlspec_check_el_bwd(Ltl_StructCheckLtlSpec_ptr self)
+ltl_structcheckltlspec_check_el_bwd(Ltl_StructCheckLtlSpec_ptr self, boolean existential)
 {
   const NuSMVEnv_ptr env = EnvObject_get_environment(ENV_OBJECT(self));
   const StreamMgr_ptr streams =
@@ -892,14 +900,20 @@ ltl_structcheckltlspec_check_el_bwd(Ltl_StructCheckLtlSpec_ptr self)
   LTL_STRUCTCHECKLTLSPEC_CHECK_INSTANCE(self);
   nusmv_assert(FairnessList_is_empty(FAIRNESS_LIST(BddFsm_get_compassion(self->fsm))));
 
-  self->spec_formula =
-    find_node(nodemgr, NOT,
-              find_node(nodemgr, EG,
-                        find_node(nodemgr, TRUEEXP,Nil,Nil), Nil), Nil);
+  if (!existential) {
+    self->spec_formula =
+      find_node(nodemgr, NOT,
+                find_node(nodemgr, EG,
+                          find_node(nodemgr, TRUEEXP,Nil,Nil), Nil), Nil);
+  } else {
+    self->spec_formula =
+      find_node(nodemgr, EG,
+                find_node(nodemgr, TRUEEXP,Nil,Nil), Nil);   
+  }
 
   if (opt_verbose_level_gt(opts, 2)) {
     Logger_ptr logger = LOGGER(NuSMVEnv_get_value(env, ENV_LOGGER));
-    Prop_ptr phi = Prop_create_partial(EnvObject_get_environment(ENV_OBJECT(self)), self->spec_formula, Prop_Ctl);
+    Prop_ptr phi = Prop_create_partial(EnvObject_get_environment(ENV_OBJECT(self)), self->spec_formula, Prop_Ctl, Prop_Prove);
     Logger_log(logger, "Checking CTL ");
     print_spec(Logger_get_ostream(logger), phi, get_prop_print_method(opts));
     Logger_log(logger, " generated from the tableau.\n");
@@ -921,11 +935,12 @@ ltl_structcheckltlspec_check_el_bwd(Ltl_StructCheckLtlSpec_ptr self)
     return;
   }
 
-  /* Negate the result */
-  tmp = bdd_not(self->dd, self->s0);
-  bdd_free(self->dd, self->s0);
-  self->s0 = tmp;
-
+  if (!existential) {
+    /* Negate the result */
+    tmp = bdd_not(self->dd, self->s0);
+    bdd_free(self->dd, self->s0);
+    self->s0 = tmp;
+  }
   /* Intersect with init, invar and fair states */
   {
     bdd_ptr init  = BddFsm_get_init(self->fsm);
@@ -949,13 +964,15 @@ ltl_structcheckltlspec_check_el_bwd(Ltl_StructCheckLtlSpec_ptr self)
   initialized before with Ltl_StructCheckLtlSpec_build.
 */
 static void
-ltl_structcheckltlspec_check_el_fwd(Ltl_StructCheckLtlSpec_ptr self)
+ltl_structcheckltlspec_check_el_fwd(Ltl_StructCheckLtlSpec_ptr self, boolean existential)
 {
   const NuSMVEnv_ptr env = EnvObject_get_environment(ENV_OBJECT(self));
   const StreamMgr_ptr streams =
     STREAM_MGR(NuSMVEnv_get_value(env, ENV_STREAM_MANAGER));
 
   LTL_STRUCTCHECKLTLSPEC_CHECK_INSTANCE(self);
+
+  nusmv_assert(!existential);
 
   nusmv_assert(FairnessList_is_empty(FAIRNESS_LIST(BddFsm_get_compassion(self->fsm))));
   nusmv_assert(Bdd_elfwd_check_options(EnvObject_get_environment(ENV_OBJECT(self)),
@@ -1065,6 +1082,8 @@ static void ltl_structcheckltlspec_init(Ltl_StructCheckLtlSpec_ptr self,
   const OptsHandler_ptr opts =
     OPTS_HANDLER(NuSMVEnv_get_value(env, ENV_OPTS_HANDLER));
 
+  nusmv_assert(Prop_get_type(prop) == Prop_Ltl || Prop_get_type(prop) == Prop_ELtl);
+
   env_object_init(ENV_OBJECT(self), env);
 
   self->prop = prop;
@@ -1085,7 +1104,7 @@ static void ltl_structcheckltlspec_init(Ltl_StructCheckLtlSpec_ptr self,
     self->oreg2smv = ltl2smv;
   }
   self->ltl2smv = NULL;
-  self->negate_formula = true;
+  self->negate_formula = Prop_get_type(prop) != Prop_ELtl;
   self->do_rewriting = true;
 
   ltl_structcheckltlspec_prepare(self);

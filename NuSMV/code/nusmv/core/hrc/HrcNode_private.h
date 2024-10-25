@@ -86,8 +86,13 @@ typedef struct HrcNode_TAG
   Olist_ptr compassion;        /* COMPASSION */
   Olist_ptr constants;         /* CONSTANTS */
   Olist_ptr invar_props;       /* INVARSPEC */
+  Olist_ptr disinvar_props;    /* DISPROVE INVARSPEC */
   Olist_ptr ctl_props;         /* CTLSPEC */
+  Olist_ptr disctl_props;      /* DISPROVE CTLSPEC */
   Olist_ptr ltl_props;         /* LTLSPEC */
+  Olist_ptr disltl_props;      /* DISPROVE LTLSPEC */
+  Olist_ptr eltl_props;        /* ELTLSPEC */
+  Olist_ptr diseltl_props;     /* DISPROVE ELTLSPEC */
   Olist_ptr psl_props;         /* PSLSPEC */
   Olist_ptr compute_props;     /* COMPUTE */
   Slist_ptr childs;           /* List of sub-childs */

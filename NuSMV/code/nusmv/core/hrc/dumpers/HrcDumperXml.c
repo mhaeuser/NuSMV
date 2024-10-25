@@ -566,12 +566,18 @@ void hrc_dumper_xml_dump_snippet(HrcDumper_ptr self,
         _HRC_DUMP_XML_NODE_BEGIN_END("name", info->n1.name);
 
         _HRC_DUMP_XML_TAG_BEGIN("proptype");
+        if (info->spec_mode != Prop_Prove) {
+          ErrorMgr_internal_error(errmgr, "Invalid property mode");
+        }
         switch (info->spec_type) {
         case Prop_Ctl:
           _HRC_DUMP_STR("CTL");
           break;
         case Prop_Ltl:
           _HRC_DUMP_STR("LTL");
+          break;
+        case Prop_ELtl:
+          _HRC_DUMP_STR("ELTL");
           break;
         case Prop_Psl:
           _HRC_DUMP_STR("PSL");

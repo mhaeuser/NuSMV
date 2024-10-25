@@ -115,7 +115,7 @@ static node_ptr node2maincontext(node_ptr node);
 
 %left <lineno> TOK_CONSTRAINT TOK_ITYPE
 %left <lineno> TOK_MODULE TOK_PROCESS TOK_CONTEXT TOK_EU TOK_AU TOK_EBU TOK_ABU TOK_MINU TOK_MAXU
-%left <lineno> TOK_VAR TOK_FROZENVAR TOK_IVAR TOK_FUN TOK_DEFINE TOK_ARRAY_DEFINE TOK_INIT TOK_TRANS TOK_INVAR TOK_SPEC TOK_CTLSPEC TOK_LTLSPEC TOK_COMPUTE TOK_NAME
+%left <lineno> TOK_VAR TOK_FROZENVAR TOK_IVAR TOK_FUN TOK_DEFINE TOK_ARRAY_DEFINE TOK_INIT TOK_TRANS TOK_INVAR TOK_SPEC TOK_CTLSPEC TOK_LTLSPEC TOK_COMPUTE TOK_NAME TOK_ELTLSPEC TOK_DISPROVE
 %left <lineno> TOK_PSLSPEC
 %left <lineno> TOK_CONSTANTS
 %left <lineno> TOK_INVARSPEC TOK_FAIRNESS TOK_COMPASSION TOK_JUSTICE 
@@ -184,7 +184,7 @@ static node_ptr node2maincontext(node_ptr node);
 %type <node> assign assign_list one_assign
 %type <node> init invar trans
 %type <node> fairness justice compassion
-%type <node> invarspec ctlspec ltlspec pslspec compute
+%type <node> invarspec ctlspec ltlspec pslspec compute eltlspec disinvarspec disctlspec disltlspec diseltlspec
 %type <node> _invarspec _ctlspec _ltlspec _compute
 %type <node> constants constants_expression
 %type <node> compute_expression

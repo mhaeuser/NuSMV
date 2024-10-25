@@ -1890,9 +1890,14 @@ static node_ptr expr2bexpr_recur(BddEnc_ptr enc,
       break;
 
     case SPEC:
+    case DISSPEC:
     case LTLSPEC:
+    case DISLTLSPEC:
+    case ELTLSPEC:
+    case DISELTLSPEC:
     case PSLSPEC:
     case INVARSPEC:
+    case DISINVARSPEC:
     case COMPUTE:
       res = expr2bexpr_recur(enc, det_layer, cdr(car(expr)), car(car(expr)),
                              in_next, expr2bexpr);

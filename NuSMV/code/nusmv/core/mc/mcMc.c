@@ -129,18 +129,18 @@ void Mc_CheckCTLSpec(NuSMVEnv_ptr env, Prop_ptr prop)
 
   /* Prints out the result, if not true explain. */
   StreamMgr_print_output(streams,  "-- ");
-  print_spec(StreamMgr_get_output_ostream(streams),
+  print_name_or_spec(StreamMgr_get_output_ostream(streams),
              prop, get_prop_print_method(opts));
 
   if (bdd_is_false(dd, s0)) {
-    StreamMgr_print_output(streams,  "is true\n");
+    StreamMgr_print_output(streams,  "is true [%s]\n", Prop_get_mode(prop) != Prop_Prove ? "failure" : "success");
     Prop_set_status(prop, Prop_True);
   }
   else {
-    StreamMgr_print_output(streams,  "is false\n");
+    StreamMgr_print_output(streams,  "is false [%s]\n", Prop_get_mode(prop) != Prop_Prove ? "success" : "failure");
     Prop_set_status(prop, Prop_False);
 
-    if (opt_counter_examples(opts)) {
+    if (opt_counter_examples(opts) && Prop_get_mode(prop) != Prop_Disprove) {
       char* trace_title = NULL;
       char* trace_title_postfix = " Counterexample";
 
@@ -1073,6 +1073,13 @@ void print_spec(OStream_ptr file, Prop_ptr prop, Prop_PrintFmt fmt)
 {
   OStream_printf(file, "specification ");
   Prop_print(prop, file, fmt);
+  OStream_printf(file, " ");
+}
+
+void print_name_or_spec(OStream_ptr file, Prop_ptr prop, Prop_PrintFmt fmt)
+{
+  OStream_printf(file, "specification ");
+  Prop_print_name(prop, file, fmt);
   OStream_printf(file, " ");
 }
 

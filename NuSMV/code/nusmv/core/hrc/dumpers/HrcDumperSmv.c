@@ -420,16 +420,53 @@ void hrc_dumper_smv_dump_snippet(HrcDumper_ptr self,
       if (info->stage & HRC_STAGE_BEGIN) {
         switch (info->spec_type) {
         case Prop_Ctl:
-          _HRC_DUMP_STR("CTLSPEC");
+          switch (info->spec_mode) {
+          case Prop_Prove:
+            _HRC_DUMP_STR("CTLSPEC");
+            break;
+          case Prop_Disprove:
+            _HRC_DUMP_STR("DISPROVE CTLSPEC");
+            break;
+          default:
+            ErrorMgr_internal_error(errmgr, "Invalid property mode");
+          }
           break;
         case Prop_Ltl:
-          _HRC_DUMP_STR("LTLSPEC");
+          switch (info->spec_mode) {
+          case Prop_Prove:
+            _HRC_DUMP_STR("LTLSPEC");
+            break;
+          case Prop_Disprove:
+            _HRC_DUMP_STR("DISPROVE LTLSPEC");
+            break;
+          default:
+            ErrorMgr_internal_error(errmgr, "Invalid property mode");
+          }
+          break;
+        case Prop_ELtl:
+          switch (info->spec_mode) {
+          case Prop_Prove:
+            _HRC_DUMP_STR("ELTLSPEC");
+            break;
+          case Prop_Disprove:
+            _HRC_DUMP_STR("DISPROVE ELTLSPEC");
+            break;
+          default:
+            ErrorMgr_internal_error(errmgr, "Invalid property mode");
+          }
           break;
         case Prop_Psl:
           _HRC_DUMP_STR("PSLSPEC");
           break;
         case Prop_Invar:
-          _HRC_DUMP_STR("INVARSPEC");
+          switch (info->spec_mode) {
+          case Prop_Prove:
+            _HRC_DUMP_STR("INVARSPEC");
+            break;
+          case Prop_Disprove:
+            _HRC_DUMP_STR("DISPROVE INVARSPEC");
+            break;
+          }
           break;
         case Prop_Compute:
           _HRC_DUMP_STR("COMPUTE");

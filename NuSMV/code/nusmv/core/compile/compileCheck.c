@@ -237,6 +237,7 @@ void compileCheckForInputVars(SymbTable_ptr symb_table,
     node_ptr assign_expr = NULL;
     node_ptr invarspec = NULL;
     node_ptr ltlspec = NULL;
+    node_ptr disltlspec = NULL;
 
     trans_expr = FlatHierarchy_get_trans(hierarchy);
     init_expr = FlatHierarchy_get_init(hierarchy);
@@ -244,6 +245,7 @@ void compileCheckForInputVars(SymbTable_ptr symb_table,
     assign_expr = FlatHierarchy_get_assign(hierarchy);
     invarspec = FlatHierarchy_get_invarspec(hierarchy);
     ltlspec = FlatHierarchy_get_ltlspec(hierarchy);
+    disltlspec = FlatHierarchy_get_disltlspec(hierarchy);
 
     if (opt_verbose_level_gt(opts, 2)) {
       Logger_ptr logger = LOGGER(NuSMVEnv_get_value(env, ENV_LOGGER));
@@ -258,6 +260,7 @@ void compileCheckForInputVars(SymbTable_ptr symb_table,
 
     compileCheckInvarSpecForInputVars(symb_table, &data, invarspec);
     compileCheckLtlSpecForInputVars(symb_table, &data, ltlspec);
+    compileCheckLtlSpecForInputVars(symb_table, &data, disltlspec);
   }
   else {
     if (opt_verbose_level_gt(opts, 2)) {

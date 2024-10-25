@@ -748,16 +748,70 @@ void Compile_write_coi_prop_fsm(const NuSMVEnv_ptr env,
         /* Add only the property for which we are dumping the model */
         switch (Prop_get_type(prop)) {
         case Prop_Ltl:
-          FlatHierarchy_set_ltlspec(
-              coi_hierarchy,
-              cons(nodemgr, find_node(nodemgr, LTLSPEC, prop_expr, prop_name),
-                   FlatHierarchy_get_ltlspec(coi_hierarchy)));
+          switch (Prop_get_mode(prop)) {
+          case Prop_Prove:
+            FlatHierarchy_set_ltlspec(
+                coi_hierarchy,
+                cons(nodemgr, find_node(nodemgr, LTLSPEC, prop_expr, prop_name),
+                      FlatHierarchy_get_ltlspec(coi_hierarchy)));
+            break;
+          case Prop_Disprove:
+            FlatHierarchy_set_disltlspec(
+                coi_hierarchy,
+                cons(nodemgr, find_node(nodemgr, DISLTLSPEC, prop_expr, prop_name),
+                      FlatHierarchy_get_disltlspec(coi_hierarchy)));
+            break;
+          default:
+            StreamMgr_print_error(streams,  "Unhandled property \"");
+            Prop_print(prop, errstream,
+                      get_prop_print_method(opts));
+            StreamMgr_print_error(streams,  "\"\n");
+            return;
+          }
+          break;
+        case Prop_ELtl:
+          switch (Prop_get_mode(prop)) {
+          case Prop_Prove:
+            FlatHierarchy_set_eltlspec(
+                coi_hierarchy,
+                cons(nodemgr, find_node(nodemgr, ELTLSPEC, prop_expr, prop_name),
+                      FlatHierarchy_get_eltlspec(coi_hierarchy)));
+            break;
+          case Prop_Disprove:
+            FlatHierarchy_set_diseltlspec(
+                coi_hierarchy,
+                cons(nodemgr, find_node(nodemgr, DISELTLSPEC, prop_expr, prop_name),
+                      FlatHierarchy_get_diseltlspec(coi_hierarchy)));
+            break;
+          default:
+            StreamMgr_print_error(streams,  "Unhandled property \"");
+            Prop_print(prop, errstream,
+                      get_prop_print_method(opts));
+            StreamMgr_print_error(streams,  "\"\n");
+            return;
+          }
           break;
         case Prop_Ctl:
-          FlatHierarchy_set_spec(
-              coi_hierarchy,
-              cons(nodemgr, find_node(nodemgr, SPEC, prop_expr, prop_name),
-                   FlatHierarchy_get_spec(coi_hierarchy)));
+          switch (Prop_get_mode(prop)) {
+          case Prop_Prove:
+            FlatHierarchy_set_spec(
+                coi_hierarchy,
+                cons(nodemgr, find_node(nodemgr, SPEC, prop_expr, prop_name),
+                    FlatHierarchy_get_spec(coi_hierarchy)));
+            break;
+          case Prop_Disprove:
+            FlatHierarchy_set_disspec(
+                coi_hierarchy,
+                cons(nodemgr, find_node(nodemgr, DISSPEC, prop_expr, prop_name),
+                    FlatHierarchy_get_disspec(coi_hierarchy)));
+            break;
+          default:
+            StreamMgr_print_error(streams,  "Unhandled property \"");
+            Prop_print(prop, errstream,
+                      get_prop_print_method(opts));
+            StreamMgr_print_error(streams,  "\"\n");
+            return;
+          }
           break;
         case Prop_Psl:
           FlatHierarchy_set_pslspec(
@@ -772,10 +826,26 @@ void Compile_write_coi_prop_fsm(const NuSMVEnv_ptr env,
                    FlatHierarchy_get_compute(coi_hierarchy)));
           break;
         case Prop_Invar:
-          FlatHierarchy_set_invarspec(
-              coi_hierarchy,
-              cons(nodemgr, find_node(nodemgr, INVARSPEC, prop_expr, prop_name),
-                   FlatHierarchy_get_invarspec(coi_hierarchy)));
+          switch (Prop_get_mode(prop)) {
+          case Prop_Prove:
+            FlatHierarchy_set_invarspec(
+                coi_hierarchy,
+                cons(nodemgr, find_node(nodemgr, INVARSPEC, prop_expr, prop_name),
+                    FlatHierarchy_get_invarspec(coi_hierarchy)));
+            break;
+          case Prop_Disprove:
+            FlatHierarchy_set_disinvarspec(
+                coi_hierarchy,
+                cons(nodemgr, find_node(nodemgr, DISINVARSPEC, prop_expr, prop_name),
+                    FlatHierarchy_get_invarspec(coi_hierarchy)));
+            break;
+          default:
+            StreamMgr_print_error(streams,  "Unhandled property \"");
+            Prop_print(prop, errstream,
+                      get_prop_print_method(opts));
+            StreamMgr_print_error(streams,  "\"\n");
+            return;
+          }
           break;
 
         default:

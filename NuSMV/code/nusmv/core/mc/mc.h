@@ -294,12 +294,16 @@ Mc_trace_step_put_input_from_bdd(Trace_ptr trace, TraceIter step,
 */
 void print_spec(OStream_ptr file, Prop_ptr prop, Prop_PrintFmt fmt);
 
+void print_name_or_spec(OStream_ptr file, Prop_ptr prop, Prop_PrintFmt fmt);
+
 /*!
   \brief Print an invariant specification
 
   Print an invariant specification
 */
 void print_invar(OStream_ptr file, Prop_ptr n, Prop_PrintFmt fmt);
+
+void print_name_or_invar(OStream_ptr file, Prop_ptr p, Prop_PrintFmt fmt);
 
 /*!
   \brief Prints out a COMPUTE specification

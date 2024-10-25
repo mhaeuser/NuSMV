@@ -485,16 +485,22 @@ static void hrc_dump_module_instance(HrcNode_ptr hrcNode,
   }
 
   /* ---------------------------------------------------------------------- */
-  { /* specifications (INVARSPEC CTLSPEC LTLSPEC PSLSPEC COMPUTE) */
+  { /* specifications (INVARSPEC CTLSPEC LTLSPEC PSLSPEC COMPUTE ELTLSPEC) */
     struct {
       Prop_Type spec_type;
+      Prop_Mode spec_mode;
       Oiter iter;
     } lists[] = {
-      { Prop_Ctl, {HrcNode_get_ctl_properties_iter(hrcNode).node} },
-      { Prop_Ltl, {HrcNode_get_ltl_properties_iter(hrcNode).node} },
-      { Prop_Psl, {HrcNode_get_psl_properties_iter(hrcNode).node} },
-      { Prop_Invar, {HrcNode_get_invar_properties_iter(hrcNode).node} },
-      { Prop_Compute, {HrcNode_get_compute_properties_iter(hrcNode).node} },
+      { Prop_Ctl, Prop_Prove, {HrcNode_get_ctl_properties_iter(hrcNode).node} },
+      { Prop_Ctl, Prop_Disprove, {HrcNode_get_disctl_properties_iter(hrcNode).node} },
+      { Prop_Ltl, Prop_Prove, {HrcNode_get_ltl_properties_iter(hrcNode).node} },
+      { Prop_Ltl, Prop_Disprove, {HrcNode_get_disltl_properties_iter(hrcNode).node} },
+      { Prop_ELtl, Prop_Prove, {HrcNode_get_eltl_properties_iter(hrcNode).node} },
+      { Prop_ELtl, Prop_Disprove, {HrcNode_get_diseltl_properties_iter(hrcNode).node} },
+      { Prop_Psl, Prop_Prove, {HrcNode_get_psl_properties_iter(hrcNode).node} },
+      { Prop_Invar, Prop_Prove, {HrcNode_get_invar_properties_iter(hrcNode).node} },
+      { Prop_Invar, Prop_Disprove, {HrcNode_get_disinvar_properties_iter(hrcNode).node} },
+      { Prop_Compute, Prop_Prove, {HrcNode_get_compute_properties_iter(hrcNode).node} },
     };
 
     boolean is_empty = true;
@@ -514,6 +520,7 @@ static void hrc_dump_module_instance(HrcNode_ptr hrcNode,
            iter = Oiter_next(iter)) {
         node_ptr elem = NODE_PTR(Oiter_element(iter));
         info->spec_type = lists[idx].spec_type;
+        info->spec_mode = lists[idx].spec_mode;
         info->n1.name = cdr(elem);
         info->n2.expr = car(elem);
         info->last_in_list = Oiter_is_end(Oiter_next(iter));

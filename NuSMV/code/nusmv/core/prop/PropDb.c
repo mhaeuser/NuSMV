@@ -96,7 +96,8 @@ static int
 prop_db_prop_parse_from_arg_and_add(PropDb_ptr self,
                                     SymbTable_ptr symb_table,
                                     int argc, const char** argv,
-                                    const Prop_Type type);
+                                    const Prop_Type type,
+                                    const Prop_Mode mode);
 static const char*
 prop_db_get_prop_type_as_parsing_string(PropDb_ptr self,
                                         const Prop_Type type);
@@ -134,9 +135,12 @@ void PropDb_clean(PropDb_ptr self)
 }
 
 int PropDb_fill(PropDb_ptr self, SymbTable_ptr symb_table,
-                node_ptr ctlspec, node_ptr computespec,
-                node_ptr ltlspec, node_ptr pslspec,
-                node_ptr invarspec)
+                node_ptr ctlspec, node_ptr disctlspec,
+                node_ptr computespec,
+                node_ptr ltlspec, node_ptr disltlspec,
+                node_ptr eltlspec, node_ptr diseltlspec,
+                node_ptr pslspec,
+                node_ptr invarspec, node_ptr disinvarspec)
 {
   node_ptr l;
   int res;
@@ -156,7 +160,16 @@ int PropDb_fill(PropDb_ptr self, SymbTable_ptr symb_table,
 
   for (l = ctlspec; l != Nil; l = cdr(l)) {
     res = PropDb_prop_create_and_add(self, symb_table, car(car(l)),
-                                     Prop_Ctl);
+                                     Prop_Ctl, Prop_Prove);
+    if (res == -1) return 1;
+    if (Nil != cdr(car(l))){
+      prop = PropDb_get_prop_at_index(self, res);
+      Prop_set_name(prop, cdr(car(l)));
+    }
+  }
+  for (l = disctlspec; l != Nil; l = cdr(l)) {
+    res = PropDb_prop_create_and_add(self, symb_table, car(car(l)),
+                                     Prop_Ctl, Prop_Disprove);
     if (res == -1) return 1;
     if (Nil != cdr(car(l))){
       prop = PropDb_get_prop_at_index(self, res);
@@ -165,7 +178,7 @@ int PropDb_fill(PropDb_ptr self, SymbTable_ptr symb_table,
   }
   for (l = computespec; l != Nil; l = cdr(l)) {
     res = PropDb_prop_create_and_add(self, symb_table, car(car(l)),
-                                     Prop_Compute);
+                                     Prop_Compute, Prop_Prove);
     if (res == -1) return 1;
     if (Nil != cdr(car(l))){
       prop = PropDb_get_prop_at_index(self, res);
@@ -174,7 +187,34 @@ int PropDb_fill(PropDb_ptr self, SymbTable_ptr symb_table,
   }
   for (l = ltlspec; l != Nil; l = cdr(l)) {
     res = PropDb_prop_create_and_add(self, symb_table, car(car(l)),
-                                     Prop_Ltl);
+                                     Prop_Ltl, Prop_Prove);
+    if (res == -1) return 1;
+    if (Nil != cdr(car(l))){
+      prop = PropDb_get_prop_at_index(self, res);
+      Prop_set_name(prop, cdr(car(l)));
+    }
+  }
+  for (l = disltlspec; l != Nil; l = cdr(l)) {
+    res = PropDb_prop_create_and_add(self, symb_table, car(car(l)),
+                                     Prop_Ltl, Prop_Disprove);
+    if (res == -1) return 1;
+    if (Nil != cdr(car(l))){
+      prop = PropDb_get_prop_at_index(self, res);
+      Prop_set_name(prop, cdr(car(l)));
+    }
+  }
+  for (l = eltlspec; l != Nil; l = cdr(l)) {
+    res = PropDb_prop_create_and_add(self, symb_table, car(car(l)),
+                                     Prop_ELtl, Prop_Prove);
+    if (res == -1) return 1;
+    if (Nil != cdr(car(l))){
+      prop = PropDb_get_prop_at_index(self, res);
+      Prop_set_name(prop, cdr(car(l)));
+    }
+  }
+  for (l = diseltlspec; l != Nil; l = cdr(l)) {
+    res = PropDb_prop_create_and_add(self, symb_table, car(car(l)),
+                                     Prop_ELtl, Prop_Disprove);
     if (res == -1) return 1;
     if (Nil != cdr(car(l))){
       prop = PropDb_get_prop_at_index(self, res);
@@ -183,7 +223,7 @@ int PropDb_fill(PropDb_ptr self, SymbTable_ptr symb_table,
   }
   for (l = pslspec; l != Nil; l = cdr(l)) {
     res = PropDb_prop_create_and_add(self, symb_table,
-                                     car(car(l)), Prop_Psl);
+                                     car(car(l)), Prop_Psl, Prop_Prove);
     if (res == -1) return 1;
     if (Nil != cdr(car(l))){
       prop = PropDb_get_prop_at_index(self, res);
@@ -192,7 +232,16 @@ int PropDb_fill(PropDb_ptr self, SymbTable_ptr symb_table,
   }
   for (l = invarspec; l != Nil; l = cdr(l)) {
     res = PropDb_prop_create_and_add(self, symb_table, car(car(l)),
-                                     Prop_Invar);
+                                     Prop_Invar, Prop_Prove);
+    if (res == -1) return 1;
+    if (Nil != cdr(car(l))){
+      prop = PropDb_get_prop_at_index(self, res);
+      Prop_set_name(prop, cdr(car(l)));
+    }
+  }
+  for (l = disinvarspec; l != Nil; l = cdr(l)) {
+    res = PropDb_prop_create_and_add(self, symb_table, car(car(l)),
+                                     Prop_Invar, Prop_Disprove);
     if (res == -1) return 1;
     if (Nil != cdr(car(l))){
       prop = PropDb_get_prop_at_index(self, res);
@@ -218,11 +267,12 @@ boolean PropDb_add(PropDb_ptr self, Prop_ptr p)
 VIRTUAL int PropDb_prop_create_and_add(PropDb_ptr self,
                                        SymbTable_ptr symb_table,
                                        node_ptr spec,
-                                       Prop_Type type)
+                                       Prop_Type type,
+                                       Prop_Mode mode)
 {
   PROP_DB_CHECK_INSTANCE(self);
   SYMB_TABLE_CHECK_INSTANCE(symb_table);
-  return self->prop_create_and_add(self, symb_table, spec, type);
+  return self->prop_create_and_add(self, symb_table, spec, type, mode);
 }
 
 Prop_ptr PropDb_get_last(const PropDb_ptr self)
@@ -536,6 +586,7 @@ int PropDb_prop_parse_and_add(const PropDb_ptr self,
                               SymbTable_ptr symb_table,
                               const char* str,
                               const Prop_Type type,
+                              const Prop_Mode mode,
                               const node_ptr expr_name)
 {
   const char* argv[2];
@@ -549,7 +600,7 @@ int PropDb_prop_parse_and_add(const PropDb_ptr self,
   argv[1] = (char*) str;
 
   res = prop_db_prop_parse_from_arg_and_add(self, symb_table,
-                                            argc, argv, type);
+                                            argc, argv, type, mode);
 
   if (-1 == res) return -1;
   else if (Nil != expr_name) {
@@ -878,6 +929,7 @@ int PropDb_show_property(const PropDb_ptr self,
 
 int PropDb_check_property(const PropDb_ptr self,
                           const Prop_Type pt,
+                          const Prop_Mode pm,
                           const char* formula,
                           const int prop_no)
 {
@@ -899,7 +951,7 @@ int PropDb_check_property(const PropDb_ptr self,
     else {
       int result;
       SymbTable_ptr st = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
-      result = PropDb_prop_parse_and_add(self, st, formula, pt, Nil);
+      result = PropDb_prop_parse_and_add(self, st, formula, pt, pm, Nil);
       if (result == -1) return(1);
       PropDb_verify_prop_at_index(self, result);
     }
@@ -1022,7 +1074,7 @@ void prop_db_deinit(PropDb_ptr self)
 }
 
 int prop_db_prop_create_and_add(PropDb_ptr self, SymbTable_ptr symb_table,
-                                node_ptr spec, Prop_Type type)
+                                node_ptr spec, Prop_Type type, Prop_Mode mode)
 {
   const NuSMVEnv_ptr env = ENV_OBJECT(self)->environment;
   const StreamMgr_ptr streams =
@@ -1059,7 +1111,7 @@ int prop_db_prop_create_and_add(PropDb_ptr self, SymbTable_ptr symb_table,
     }
   }
 
-  prop = Prop_create_partial(ENV_OBJECT(self)->environment, spec, type);
+  prop = Prop_create_partial(ENV_OBJECT(self)->environment, spec, type, mode);
 
   Prop_set_index(prop, index);
 
@@ -1105,7 +1157,7 @@ int prop_db_prop_create_and_add(PropDb_ptr self, SymbTable_ptr symb_table,
       node_ptr context = car(core);
       node_ptr body = cdr(core);
 
-      if (Prop_Invar == type || Prop_Ltl == type) {
+      if (Prop_Invar == type || Prop_Ltl == type || Prop_ELtl == type) {
         Compile_check_next(symb_table, body, context, true);
 
         Compile_check_input_next(symb_table, body, context);
@@ -1155,6 +1207,7 @@ void prop_db_verify_all(const PropDb_ptr self)
   PropDb_verify_all_type(self, Prop_Ctl);
   PropDb_verify_all_type(self, Prop_Compute);
   PropDb_verify_all_type(self, Prop_Ltl);
+  PropDb_verify_all_type(self, Prop_ELtl);
   PropDb_verify_all_type(self, Prop_Psl);
   PropDb_verify_all_type(self, Prop_Invar);
 }
@@ -1187,13 +1240,14 @@ static void prop_db_finalize(Object_ptr object, void* dummy)
   an arg structure. If the formula is correct, it is added to the
   property database and its index is returned.
   Otherwise, -1 is returned.
-  Valid types are Prop_Ctl, Prop_Ltl, Prop_Psl, Prop_Invar and Prop_Compute.
+  Valid types are Prop_Ctl, Prop_Ltl, Prop_Eltl, Prop_Psl, Prop_Invar and Prop_Compute.
 */
 static int
 prop_db_prop_parse_from_arg_and_add(PropDb_ptr self,
                                     SymbTable_ptr symb_table,
                                     int argc, const char** argv,
-                                    const Prop_Type type)
+                                    const Prop_Type type,
+                                    const Prop_Mode mode)
 {
   const NuSMVEnv_ptr env = EnvObject_get_environment(ENV_OBJECT(self));
   const StreamMgr_ptr streams =
@@ -1203,6 +1257,7 @@ prop_db_prop_parse_from_arg_and_add(PropDb_ptr self,
   switch (type) {
   case Prop_Ctl:
   case Prop_Ltl:
+  case Prop_ELtl:
   case Prop_Psl:
   case Prop_Invar:
   case Prop_Compute:
@@ -1269,7 +1324,7 @@ prop_db_prop_parse_from_arg_and_add(PropDb_ptr self,
       }
     }
 
-    return PropDb_prop_create_and_add(self, symb_table, property, type);
+    return PropDb_prop_create_and_add(self, symb_table, property, type, mode);
   }
 }
 

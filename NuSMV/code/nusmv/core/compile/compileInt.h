@@ -217,7 +217,7 @@ void cmp_struct_quit(cmp_struct_ptr);
 
    The returned value is a structure constraining all the collected parts
    which are:
-   the list of TRANS, INIT, INVAR, ASSIGN, SPEC, COMPUTE, LTLSPEC,
+   the list of TRANS, INIT, INVAR, ASSIGN, SPEC, COMPUTE, LTLSPEC, ELTLSPEC,
    PSLSPEC, INVARSPEC, JUSTICE, COMPASSION,
    a full list of variables declared in the hierarchy,
    a hash table associating variables to their assignments and constrains.

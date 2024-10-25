@@ -103,6 +103,8 @@ typedef Expr_ptr (*Prop_get_expr_method)(const Prop_ptr);
 */
 typedef const char* (*Prop_get_type_as_string_method)(const Prop_ptr);
 
+typedef const char* (*Prop_get_mode_as_string_method)(const Prop_ptr);
+
 /*!
   \brief \todo Missing synopsis
 
@@ -138,6 +140,7 @@ typedef struct Prop_TAG
 
   Set_t        cone;   /* The cone of influence */
   Prop_Type    type;   /* type of specification */
+  Prop_Mode    mode;
   Prop_Status  status; /* verification status */
   int          number; /* The result of a quantitative spec */
   int          trace;  /* the counterexample number (if any) */
@@ -156,6 +159,7 @@ typedef struct Prop_TAG
   Prop_get_expr_method get_expr;
   /* const char* (*)(const Prop_ptr) */
   Prop_get_type_as_string_method get_type_as_string;
+  Prop_get_mode_as_string_method get_mode_as_string;
   /* void (*)(const Prop_ptr, FILE*) */
   Prop_print_method print;
   /* void (*)(const Prop_ptr, FILE*) */
@@ -209,6 +213,8 @@ Expr_ptr prop_get_expr(const Prop_ptr self);
   \todo
 */
 const char* prop_get_type_as_string(const Prop_ptr self);
+
+const char* prop_get_mode_as_string(const Prop_ptr self);
 
 /*!
   \methodof Prop

@@ -129,8 +129,15 @@ enum _Prop_Type {
   Prop_Invar,
   Prop_Compute,
   Prop_CompId, /* For properties names comparison */
+  Prop_ELtl,
   /* ---------------------------------------------------------------------- */
   Prop_Prop_Type_Last /* Do not touch this */
+};
+
+enum _Prop_Mode {
+  Prop_NoMode,
+  Prop_Prove,
+  Prop_Disprove
 };
 
 
@@ -175,6 +182,8 @@ enum _Prop_PrintFmt {
 */
 #define PROP_LTL_STRING "LTL"
 
+#define PROP_ELTL_STRING "ELTL"
+
 /*!
   \brief \todo Missing synopsis
 
@@ -196,11 +205,16 @@ enum _Prop_PrintFmt {
 */
 #define PROP_COMPUTE_STRING "Quantitative"
 
+#define PROP_NOMODE_STRING "NoMode"
+#define PROP_PROVE_STRING "Prove"
+#define PROP_DISPROVE_STRING "Disprove"
+
 /*---------------------------------------------------------------------------*/
 /* Type declarations                                                         */
 /*---------------------------------------------------------------------------*/
 typedef enum _Prop_Status Prop_Status;
 typedef enum _Prop_Type Prop_Type;
+typedef enum _Prop_Mode Prop_Mode;
 typedef enum _PropDb_PrintFmt PropDb_PrintFmt;
 typedef enum _Prop_PrintFmt Prop_PrintFmt;
 
@@ -264,7 +278,7 @@ Prop_ptr Prop_create(const NuSMVEnv_ptr env);
                       property index within the db is not set.
 */
 Prop_ptr Prop_create_partial(const NuSMVEnv_ptr env,
-                             Expr_ptr expr, Prop_Type type);
+                             Expr_ptr expr, Prop_Type type, Prop_Mode mode);
 
 /*!
   \brief The Prop class copier
@@ -283,7 +297,7 @@ Prop_ptr Prop_copy(Prop_ptr input);
 
   Returns NULL on failure
 */
-Prop_ptr Prop_create_from_string(NuSMVEnv_ptr env, char* str, Prop_Type type);
+Prop_ptr Prop_create_from_string(NuSMVEnv_ptr env, char* str, Prop_Type type, Prop_Mode mode);
 
 /*!
   \methodof Prop
@@ -389,6 +403,9 @@ Prop_Type Prop_get_type(const Prop_ptr self);
                       deleted
 */
 const char* Prop_get_type_as_string(Prop_ptr self);
+
+Prop_Mode Prop_get_mode(const Prop_ptr self);
+const char* Prop_get_mode_as_string(Prop_ptr self);
 
 /*!
   \methodof Prop
@@ -748,6 +765,8 @@ void Prop_destroy_coi_for_bmc(Prop_ptr self);
 */
 void Prop_print(Prop_ptr self, OStream_ptr file, Prop_PrintFmt fmt);
 
+void Prop_print_name(const Prop_ptr self, OStream_ptr file, Prop_PrintFmt fmt);
+
 /*!
   \methodof Prop
   \brief Prints a property with info or its position and status
@@ -785,7 +804,7 @@ void Prop_set_environment_fsms(const NuSMVEnv_ptr env, Prop_ptr prop);
 
   The set must be freed by the caller
 */
-Set_t Prop_set_from_formula_list(NuSMVEnv_ptr env, node_ptr list, Prop_Type type);
+Set_t Prop_set_from_formula_list(NuSMVEnv_ptr env, node_ptr list, Prop_Type type, Prop_Mode mode);
 
 /*!
   \methodof Prop
@@ -846,6 +865,8 @@ void Prop_verify(Prop_ptr self);
 */
 int Prop_check_type(const Prop_ptr self, Prop_Type type);
 
+int Prop_check_mode(const Prop_ptr self, Prop_Mode mode);
+
 
 /* PropType sub-interface *****************************************************/
 
@@ -871,7 +892,10 @@ const char* PropType_to_parsing_string(const Prop_Type type);
 
 
 */
-short int PropType_to_node_type(const Prop_Type type);
+short int PropType_to_node_type(const Prop_Type type, const Prop_Mode mode);
+
+
+const char* PropMode_to_string(const Prop_Mode mode);
 
 
 /**AutomaticEnd***************************************************************/

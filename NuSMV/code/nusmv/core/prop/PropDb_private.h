@@ -76,7 +76,8 @@
 typedef int (*PropDb_prop_create_and_add_method)(PropDb_ptr, \
                                                  SymbTable_ptr, \
                                                  node_ptr, \
-                                                 Prop_Type);
+                                                 Prop_Type, \
+                                                 Prop_Mode);
 
 /*!
   \brief \todo Missing synopsis
@@ -145,7 +146,8 @@ void prop_db_deinit(PropDb_ptr self);
 int prop_db_prop_create_and_add(PropDb_ptr self,
                                        SymbTable_ptr symb_table,
                                        node_ptr spec,
-                                       Prop_Type type);
+                                       Prop_Type type,
+                                       Prop_Mode mode);
 
 /*!
   \methodof PropDb

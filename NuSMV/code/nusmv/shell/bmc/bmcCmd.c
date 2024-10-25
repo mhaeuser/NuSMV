@@ -962,7 +962,7 @@ int Bmc_CommandGenLtlSpecBmc(NuSMVEnv_ptr env, int argc, char** argv)
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = Bmc_cmd_options_handling(env, argc, argv,
-                                              Prop_Ltl, &ltlprop,
+                                              Prop_Ltl, Prop_Prove, &ltlprop,
                                               &k, &relative_loop,
                                               NULL, NULL, &fname, NULL,
                                               NULL);
@@ -1038,7 +1038,7 @@ int Bmc_CommandGenLtlSpecBmcOnePb(NuSMVEnv_ptr env, int argc, char** argv)
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = Bmc_cmd_options_handling(env, argc, argv,
-                                              Prop_Ltl, &ltlprop,
+                                              Prop_Ltl, Prop_Prove, &ltlprop,
                                               &k, &relative_loop,
                                               NULL, NULL, &fname, NULL,
                                               NULL);
@@ -1114,7 +1114,7 @@ int Bmc_CommandCheckLtlSpecBmc(NuSMVEnv_ptr env, int argc, char** argv)
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = Bmc_cmd_options_handling(env, argc, argv,
-                                              Prop_Ltl, &ltlprop,
+                                              Prop_Ltl, Prop_Prove, &ltlprop,
                                               &k, &relative_loop,
                                               NULL, NULL, &fname, NULL,
                                               NULL);
@@ -1186,7 +1186,7 @@ const StreamMgr_ptr streams =
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = Bmc_cmd_options_handling(env, argc, argv,
-                                              Prop_Ltl, &ltlprop,
+                                              Prop_Ltl, Prop_Prove, &ltlprop,
                                               &k, &relative_loop,
                                               NULL, NULL, &fname, NULL,
                                               NULL);
@@ -1260,7 +1260,7 @@ int Bmc_CommandCheckLtlSpecBmcInc(NuSMVEnv_ptr env, int argc, char** argv)
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = Bmc_cmd_options_handling(env, argc, argv,
-                                              Prop_Ltl, &ltlprop,
+                                              Prop_Ltl, Prop_Prove, &ltlprop,
                                               &k, &relative_loop,
                                               NULL, NULL, NULL, NULL,
                                               NULL);
@@ -1329,7 +1329,7 @@ int Bmc_CommandGenInvarBmc(NuSMVEnv_ptr env, int argc, char** argv)
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = Bmc_cmd_options_handling(env, argc, argv,
-                                              Prop_Invar, &invarprop,
+                                              Prop_Invar, Prop_Prove, &invarprop,
                                               NULL, NULL,
                                               &algorithm_name, NULL,
                                               &fname, NULL,
@@ -1429,7 +1429,7 @@ int Bmc_CommandCheckInvarBmc(NuSMVEnv_ptr env, int argc, char** argv)
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = Bmc_cmd_options_handling(env, argc, argv,
-                                              Prop_Invar, &invarprop,
+                                              Prop_Invar, Prop_Prove, &invarprop,
                                               &max_k, NULL,
                                               &algorithm_name,
                                               NULL, &fname,
@@ -1578,7 +1578,7 @@ int Bmc_CommandCheckInvarBmcInc(NuSMVEnv_ptr env, int argc, char** argv)
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = Bmc_cmd_options_handling(env, argc, argv,
-                                              Prop_Invar, &invarprop,
+                                              Prop_Invar, Prop_Prove, &invarprop,
                                               &max_k, NULL,
                                               &algorithm_name,
                                               &closure_strategy_name,
@@ -2024,7 +2024,7 @@ static int bmc_CommandCheckPslSpecBmc(NuSMVEnv_ptr env, int argc, char** argv)
   if (formula != NIL(char)) {
     SymbTable_ptr st = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
     prop_no = PropDb_prop_parse_and_add(prop_db, st,
-                                        formula, Prop_Psl, Nil);
+                                        formula, Prop_Psl, Prop_Prove, Nil);
     if (prop_no == -1) { status = 1; goto label_clean_and_exit; }
   }
 
@@ -2320,7 +2320,7 @@ static int bmc_CommandCheckPslSpecBmcInc(NuSMVEnv_ptr env, int argc, char** argv
   if (formula != NIL(char)) {
     SymbTable_ptr st = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
     prop_no = PropDb_prop_parse_and_add(prop_db, st,
-                                        formula, Prop_Psl, Nil);
+                                        formula, Prop_Psl, Prop_Prove, Nil);
     if (prop_no == -1) { status = 1; goto label_clean_and_exit; }
   }
 
@@ -2761,6 +2761,7 @@ Outcome
 Bmc_cmd_options_handling(NuSMVEnv_ptr env,
                          int argc, char** argv,
                          Prop_Type prop_type,
+                         Prop_Mode prop_mode,
                          /* output parameters: */
                          Prop_ptr* res_prop,
                          int* res_k,
@@ -2904,6 +2905,10 @@ Bmc_cmd_options_handling(NuSMVEnv_ptr env,
           /* specified property's type is not what the caller expected */
           return OUTCOME_GENERIC_ERROR;
         }
+        if ( Prop_check_mode(*res_prop, prop_mode) != 0 ) {
+          /* specified property's mode is not what the caller expected */
+          return OUTCOME_GENERIC_ERROR;
+        }
 
         break;
      } /* case 'n' */
@@ -2937,6 +2942,10 @@ Bmc_cmd_options_handling(NuSMVEnv_ptr env,
                                              prop_idx);
         if ( Prop_check_type(*res_prop, prop_type) != 0 ) {
           /* specified property's type is not what the caller expected */
+          return OUTCOME_GENERIC_ERROR;
+        }
+        if ( Prop_check_mode(*res_prop, prop_mode) != 0 ) {
+          /* specified property's mode is not what the caller expected */
           return OUTCOME_GENERIC_ERROR;
         }
 
@@ -3119,7 +3128,8 @@ Bmc_cmd_options_handling(NuSMVEnv_ptr env,
 
     idx = PropDb_prop_parse_and_add(prop_db,
                                     symb_table,
-                                    str_formula, prop_type, Nil);
+                                    str_formula, prop_type,
+                                    prop_mode, Nil);
     if (idx == -1) {
       FREE(str_formula);
       return OUTCOME_GENERIC_ERROR;

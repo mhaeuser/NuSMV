@@ -69,10 +69,15 @@ struct FlatHierarchy
   node_ptr justice_expr; /* it is a cons list */
   node_ptr compassion_expr;
   node_ptr spec_expr;
+  node_ptr disspec_expr;
   node_ptr ltlspec_expr;
+  node_ptr disltlspec_expr;
   node_ptr invarspec_expr;
+  node_ptr disinvarspec_expr;
   node_ptr pslspec_expr;
   node_ptr compute_expr;
+  node_ptr eltlspec_expr;
+  node_ptr diseltlspec_expr;
 
   node_ptr pred_list;
   node_ptr mirror_list;
@@ -386,6 +391,18 @@ void FlatHierarchy_set_spec(FlatHierarchy_ptr self, node_ptr n)
   self->spec_expr = n;
 }
 
+node_ptr FlatHierarchy_get_disspec(FlatHierarchy_ptr self)
+{
+  FLAT_HIERARCHY_CHECK_INSTANCE(self);
+  return (self->disspec_expr);
+}
+
+void FlatHierarchy_set_disspec(FlatHierarchy_ptr self, node_ptr n)
+{
+  FLAT_HIERARCHY_CHECK_INSTANCE(self);
+  self->disspec_expr = n;
+}
+
 node_ptr FlatHierarchy_get_ltlspec(FlatHierarchy_ptr self)
 {
   FLAT_HIERARCHY_CHECK_INSTANCE(self);
@@ -397,6 +414,17 @@ void FlatHierarchy_set_ltlspec(FlatHierarchy_ptr self, node_ptr n)
   self->ltlspec_expr = n;
 }
 
+node_ptr FlatHierarchy_get_disltlspec(FlatHierarchy_ptr self)
+{
+  FLAT_HIERARCHY_CHECK_INSTANCE(self);
+  return(self->disltlspec_expr);
+}
+void FlatHierarchy_set_disltlspec(FlatHierarchy_ptr self, node_ptr n)
+{
+  FLAT_HIERARCHY_CHECK_INSTANCE(self);
+  self->disltlspec_expr = n;
+}
+
 node_ptr FlatHierarchy_get_invarspec(FlatHierarchy_ptr self)
 {
   FLAT_HIERARCHY_CHECK_INSTANCE(self);
@@ -406,6 +434,17 @@ void FlatHierarchy_set_invarspec(FlatHierarchy_ptr self, node_ptr n)
 {
   FLAT_HIERARCHY_CHECK_INSTANCE(self);
   self->invarspec_expr = n;
+}
+
+node_ptr FlatHierarchy_get_disinvarspec(FlatHierarchy_ptr self)
+{
+  FLAT_HIERARCHY_CHECK_INSTANCE(self);
+  return(self->disinvarspec_expr);
+}
+void FlatHierarchy_set_disinvarspec(FlatHierarchy_ptr self, node_ptr n)
+{
+  FLAT_HIERARCHY_CHECK_INSTANCE(self);
+  self->disinvarspec_expr = n;
 }
 
 node_ptr FlatHierarchy_get_pslspec(FlatHierarchy_ptr self)
@@ -428,6 +467,28 @@ void FlatHierarchy_set_compute(FlatHierarchy_ptr self, node_ptr n)
 {
   FLAT_HIERARCHY_CHECK_INSTANCE(self);
   self->compute_expr = n;
+}
+
+node_ptr FlatHierarchy_get_eltlspec(FlatHierarchy_ptr self)
+{
+  FLAT_HIERARCHY_CHECK_INSTANCE(self);
+  return(self->eltlspec_expr);
+}
+void FlatHierarchy_set_eltlspec(FlatHierarchy_ptr self, node_ptr n)
+{
+  FLAT_HIERARCHY_CHECK_INSTANCE(self);
+  self->eltlspec_expr = n;
+}
+
+node_ptr FlatHierarchy_get_diseltlspec(FlatHierarchy_ptr self)
+{
+  FLAT_HIERARCHY_CHECK_INSTANCE(self);
+  return(self->diseltlspec_expr);
+}
+void FlatHierarchy_set_diseltlspec(FlatHierarchy_ptr self, node_ptr n)
+{
+  FLAT_HIERARCHY_CHECK_INSTANCE(self);
+  self->diseltlspec_expr = n;
 }
 
 Set_t FlatHierarchy_get_vars(const FlatHierarchy_ptr self)
@@ -828,8 +889,14 @@ void FlatHierarchy_self_check(const FlatHierarchy_ptr self)
   flat_hiearchy_self_check_expr(self, self->justice_expr);
   flat_hiearchy_self_check_expr(self, self->compassion_expr);
   flat_hiearchy_self_check_expr(self, self->spec_expr);
+  flat_hiearchy_self_check_expr(self, self->disspec_expr);
   flat_hiearchy_self_check_expr(self, self->ltlspec_expr);
+  flat_hiearchy_self_check_expr(self, self->disltlspec_expr);
+  flat_hiearchy_self_check_expr(self, self->eltlspec_expr);
+  flat_hiearchy_self_check_expr(self, self->diseltlspec_expr);
   flat_hiearchy_self_check_expr(self, self->invarspec_expr);
+  flat_hiearchy_self_check_expr(self, self->disinvarspec_expr);
+  flat_hiearchy_self_check_expr(self, self->disinvarspec_expr);
   flat_hiearchy_self_check_expr(self, self->compute_expr);
 }
 
@@ -907,10 +974,15 @@ static void flat_hierarchy_init(FlatHierarchy_ptr self, SymbTable_ptr st)
   self->justice_expr         = Nil;
   self->compassion_expr      = Nil;
   self->spec_expr            = Nil;
+  self->disspec_expr         = Nil;
   self->compute_expr         = Nil;
   self->ltlspec_expr         = Nil;
+  self->disltlspec_expr      = Nil;
+  self->eltlspec_expr        = Nil;
+  self->diseltlspec_expr     = Nil;
   self->pslspec_expr         = Nil;
   self->invarspec_expr       = Nil;
+  self->disinvarspec_expr    = Nil;
   self->var_set              = Set_MakeEmpty();
 
   self->pred_list            = Nil;
@@ -981,10 +1053,15 @@ flat_hierarchy_copy(const FlatHierarchy_ptr self, FlatHierarchy_ptr other)
   other->justice_expr         = self->justice_expr;
   other->compassion_expr      = self->compassion_expr;
   other->spec_expr            = self->spec_expr;
+  other->disspec_expr         = self->disspec_expr;
   other->compute_expr         = self->compute_expr;
   other->ltlspec_expr         = self->ltlspec_expr;
+  other->disltlspec_expr      = self->disltlspec_expr;
+  other->eltlspec_expr        = self->eltlspec_expr;
+  other->diseltlspec_expr     = self->diseltlspec_expr;
   other->pslspec_expr         = self->pslspec_expr;
   other->invarspec_expr       = self->invarspec_expr;
+  other->disinvarspec_expr    = self->disinvarspec_expr;
   other->var_set              = Set_Copy(self->var_set);
 
   other->pred_list            = self->pred_list;
@@ -1124,10 +1201,20 @@ flat_hierarchy_mergeinto(FlatHierarchy_ptr self,
                                     other->compassion_expr);
   self->spec_expr       = append_ns(nodemgr, self->spec_expr,
                                     other->spec_expr);
+  self->disspec_expr    = append_ns(nodemgr, self->disspec_expr,
+                                    other->disspec_expr);
   self->ltlspec_expr    = append_ns(nodemgr, self->ltlspec_expr,
                                     other->ltlspec_expr);
+  self->disltlspec_expr = append_ns(nodemgr, self->disltlspec_expr,
+                                    other->disltlspec_expr);
+  self->eltlspec_expr   = append_ns(nodemgr, self->eltlspec_expr,
+                                    other->eltlspec_expr);
+  self->diseltlspec_expr = append_ns(nodemgr, self->diseltlspec_expr,
+                                    other->diseltlspec_expr);
   self->invarspec_expr  = append_ns(nodemgr, self->invarspec_expr,
                                     other->invarspec_expr);
+  self->disinvarspec_expr = append_ns(nodemgr, self->disinvarspec_expr,
+                                    other->disinvarspec_expr);
   self->pslspec_expr    = append_ns(nodemgr, self->pslspec_expr,
                                     other->pslspec_expr);
   self->compute_expr    = append_ns(nodemgr, self->compute_expr,

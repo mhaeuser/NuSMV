@@ -425,9 +425,21 @@ static void hrc_flattener_populate_model(HrcFlattener_ptr self,
       /* LTL */
       {HrcNode_get_ltl_properties_iter, FlatHierarchy_get_ltlspec,
        FlatHierarchy_set_ltlspec, LTLSPEC},
+      /* DISPROVE LTL */
+      {HrcNode_get_disltl_properties_iter, FlatHierarchy_get_disltlspec,
+       FlatHierarchy_set_disltlspec, DISLTLSPEC},
+      /* ELTL */
+      {HrcNode_get_eltl_properties_iter, FlatHierarchy_get_eltlspec,
+       FlatHierarchy_set_eltlspec, ELTLSPEC},
+      /* DISPROVE ELTL */
+      {HrcNode_get_diseltl_properties_iter, FlatHierarchy_get_diseltlspec,
+       FlatHierarchy_set_diseltlspec, DISELTLSPEC},
       /* CTL */
       {HrcNode_get_ctl_properties_iter, FlatHierarchy_get_spec,
        FlatHierarchy_set_spec, SPEC},
+      /* DISPROVE CTL */
+      {HrcNode_get_disctl_properties_iter, FlatHierarchy_get_disspec,
+       FlatHierarchy_set_disspec, DISSPEC},
       /* PSL */
       {HrcNode_get_psl_properties_iter, FlatHierarchy_get_pslspec,
        FlatHierarchy_set_pslspec, PSLSPEC},

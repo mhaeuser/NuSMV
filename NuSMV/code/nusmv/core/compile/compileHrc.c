@@ -227,12 +227,52 @@ void Compile_fill_hrc_from_mod_body(const NuSMVEnv_ptr env,
       break;
     }
 
+    case DISSPEC: {
+      node_ptr decl_iter;
+      for (decl_iter = car(cur_decl);
+           decl_iter != Nil;
+           decl_iter = cdr(decl_iter)) {
+        HrcNode_add_disctl_property_expr(hrc_result, car(decl_iter));
+      }
+      break;
+    }
+
     case LTLSPEC: {
       node_ptr decl_iter;
       for (decl_iter = car(cur_decl);
            decl_iter != Nil;
            decl_iter = cdr(decl_iter)) {
         HrcNode_add_ltl_property_expr(hrc_result, car(decl_iter));
+      }
+      break;
+    }
+
+    case DISLTLSPEC: {
+      node_ptr decl_iter;
+      for (decl_iter = car(cur_decl);
+           decl_iter != Nil;
+           decl_iter = cdr(decl_iter)) {
+        HrcNode_add_disltl_property_expr(hrc_result, car(decl_iter));
+      }
+      break;
+    }
+
+    case ELTLSPEC: {
+      node_ptr decl_iter;
+      for (decl_iter = car(cur_decl);
+           decl_iter != Nil;
+           decl_iter = cdr(decl_iter)) {
+        HrcNode_add_eltl_property_expr(hrc_result, car(decl_iter));
+      }
+      break;
+    }
+
+    case DISELTLSPEC: {
+      node_ptr decl_iter;
+      for (decl_iter = car(cur_decl);
+           decl_iter != Nil;
+           decl_iter = cdr(decl_iter)) {
+        HrcNode_add_diseltl_property_expr(hrc_result, car(decl_iter));
       }
       break;
     }
@@ -253,6 +293,16 @@ void Compile_fill_hrc_from_mod_body(const NuSMVEnv_ptr env,
            decl_iter != Nil;
            decl_iter = cdr(decl_iter)) {
         HrcNode_add_invar_property_expr(hrc_result, car(decl_iter));
+      }
+      break;
+    }
+
+    case DISINVARSPEC: {
+      node_ptr decl_iter;
+      for (decl_iter = car(cur_decl);
+           decl_iter != Nil;
+           decl_iter = cdr(decl_iter)) {
+        HrcNode_add_disinvar_property_expr(hrc_result, car(decl_iter));
       }
       break;
     }

@@ -677,15 +677,21 @@ void Compile_ProcessHierarchy(const NuSMVEnv_ptr env,
   FlatHierarchy_set_compassion(hierarchy, tmp);
 
 
-  /* The SPEC, LTLSPEC, PSLSPEC, INVAR_SPEC, COMPUTE properties are
+  /* The SPEC, LTLSPEC, ELTLSPEC, PSLSPEC, INVAR_SPEC, COMPUTE properties are
      simply reversed but NOT flattened. */
 
   /* RC: comments below are experiments to handle nested relative contexts */
   tmp = reverse(FlatHierarchy_get_spec(hierarchy));
   FlatHierarchy_set_spec(hierarchy, tmp/*compile_fix_nested_context(tmp)*/);
 
+  tmp = reverse(FlatHierarchy_get_disspec(hierarchy));
+  FlatHierarchy_set_disspec(hierarchy, tmp/*compile_fix_nested_context(tmp)*/);
+
   tmp = reverse(FlatHierarchy_get_ltlspec(hierarchy));
   FlatHierarchy_set_ltlspec(hierarchy, tmp/*compile_fix_nested_context(tmp)*/);
+
+  tmp = reverse(FlatHierarchy_get_disltlspec(hierarchy));
+  FlatHierarchy_set_disltlspec(hierarchy, tmp/*compile_fix_nested_context(tmp)*/);
 
   tmp = reverse(FlatHierarchy_get_invarspec(hierarchy));
   FlatHierarchy_set_invarspec(hierarchy,
@@ -743,9 +749,13 @@ void Compile_ProcessHierarchy(const NuSMVEnv_ptr env,
                        false);
     Compile_check_next(symb_table, FlatHierarchy_get_spec(hierarchy), Nil,
                        false);
+    Compile_check_next(symb_table, FlatHierarchy_get_disspec(hierarchy), Nil,
+                       false);
     Compile_check_next(symb_table, FlatHierarchy_get_invarspec(hierarchy), Nil,
                        true);
     Compile_check_next(symb_table, FlatHierarchy_get_ltlspec(hierarchy), Nil,
+                       true);
+    Compile_check_next(symb_table, FlatHierarchy_get_disltlspec(hierarchy), Nil,
                        true);
     Compile_check_next(symb_table, FlatHierarchy_get_pslspec(hierarchy), Nil,
                        false);
@@ -999,10 +1009,15 @@ int CompileFlatten_flatten_smv(NuSMVEnv_ptr env, boolean calc_vars_constrains,
     CATCH(errmgr) {
     propErr = PropDb_fill(db, st,
                           FlatHierarchy_get_spec(hierarchy),
+                          FlatHierarchy_get_disspec(hierarchy),
                           FlatHierarchy_get_compute(hierarchy),
                           FlatHierarchy_get_ltlspec(hierarchy),
+                          FlatHierarchy_get_disltlspec(hierarchy),
+                          FlatHierarchy_get_eltlspec(hierarchy),
+                          FlatHierarchy_get_diseltlspec(hierarchy),
                           FlatHierarchy_get_pslspec(hierarchy),
-                          FlatHierarchy_get_invarspec(hierarchy));
+                          FlatHierarchy_get_invarspec(hierarchy),
+                          FlatHierarchy_get_disinvarspec(hierarchy));
     }
     FAIL(errmgr) {
       FlatHierarchy_destroy(hierarchy);
@@ -2699,7 +2714,7 @@ static void make_params(const NuSMVEnv_ptr env,
 
    NB: After parsing and creating the module hash table, the order of
    declarations is correct (not reversed). This function reverse the order
-   of SPEC, LTLSPEC, PSLSPEC, INVARSPEC, COMPUTE, JUSTICE AND COMPASSION
+   of SPEC, LTLSPEC, ELTLSPEC, PSLSPEC, INVARSPEC, COMPUTE, JUSTICE AND COMPASSION
 
 
   \sa compile_instantiate_var compile_instantiate_vars
@@ -2907,6 +2922,35 @@ static void compile_instantiate(const NuSMVEnv_ptr env,
       }
       break;
 
+    case DISSPEC:
+      {
+        node_ptr property_name = cdr(cur_decl);
+
+        if (node_get_type(car(cur_decl)) == CONTEXT) {
+          /* concatenates local context to the current module */
+          node_ptr new_ctx = CompileFlatten_concat_contexts(env, mod_name,
+                                                            caar(cur_decl));
+          tmp = find_node(nodemgr, CONTEXT, new_ctx, cdr(car(cur_decl)));
+        }
+        else tmp = find_node(nodemgr, CONTEXT, mod_name, car(cur_decl));
+
+        /* Support for property names */
+        if (Nil != property_name) {
+          property_name = CompileFlatten_concat_contexts(env, mod_name,
+                                                         property_name);
+          if (!FlatHierarchy_add_property_name(result, property_name)){
+            ErrorMgr_error_redefining(errmgr, property_name);
+          }
+        }
+
+        tmp = find_node(nodemgr, DISSPEC, tmp, property_name);
+        tmp = cons(nodemgr, tmp, FlatHierarchy_get_disspec(result));
+        FlatHierarchy_set_disspec(result, tmp);
+        if (HRC_NODE(NULL) != hrc_result)
+          HrcNode_add_disctl_property_expr(hrc_result, cur_decl);
+      }
+      break;
+
     case LTLSPEC:
       {
         node_ptr property_name = cdr(cur_decl);
@@ -2934,6 +2978,96 @@ static void compile_instantiate(const NuSMVEnv_ptr env,
 
         if (HRC_NODE(NULL) != hrc_result)
           HrcNode_add_ltl_property_expr(hrc_result, cur_decl);
+      }
+      break;
+
+    case DISLTLSPEC:
+      {
+        node_ptr property_name = cdr(cur_decl);
+
+        if (node_get_type(car(cur_decl)) == CONTEXT) {
+          /* concatenates local context to the current module */
+          node_ptr new_ctx = CompileFlatten_concat_contexts(env, mod_name,
+                                                            caar(cur_decl));
+          tmp = find_node(nodemgr, CONTEXT, new_ctx, cdr(car(cur_decl)));
+        }
+        else tmp = find_node(nodemgr, CONTEXT, mod_name, car(cur_decl));
+
+        /* Support for property names */
+        if (Nil != property_name) {
+          property_name = CompileFlatten_concat_contexts(env, mod_name,
+                                                         property_name);
+          if (!FlatHierarchy_add_property_name(result, property_name)){
+            ErrorMgr_error_redefining(errmgr, property_name);
+          }
+        }
+        tmp = find_node(nodemgr, DISLTLSPEC, tmp, property_name);
+
+        tmp = cons(nodemgr, tmp, FlatHierarchy_get_disltlspec(result));
+        FlatHierarchy_set_disltlspec(result, tmp);
+
+        if (HRC_NODE(NULL) != hrc_result)
+          HrcNode_add_disltl_property_expr(hrc_result, cur_decl);
+      }
+      break;
+
+    case ELTLSPEC:
+      {
+        node_ptr property_name = cdr(cur_decl);
+
+        if (node_get_type(car(cur_decl)) == CONTEXT) {
+          /* concatenates local context to the current module */
+          node_ptr new_ctx = CompileFlatten_concat_contexts(env, mod_name,
+                                                            caar(cur_decl));
+          tmp = find_node(nodemgr, CONTEXT, new_ctx, cdr(car(cur_decl)));
+        }
+        else tmp = find_node(nodemgr, CONTEXT, mod_name, car(cur_decl));
+
+        /* Support for property names */
+        if (Nil != property_name) {
+          property_name = CompileFlatten_concat_contexts(env, mod_name,
+                                                         property_name);
+          if (!FlatHierarchy_add_property_name(result, property_name)){
+            ErrorMgr_error_redefining(errmgr, property_name);
+          }
+        }
+        tmp = find_node(nodemgr, ELTLSPEC, tmp, property_name);
+
+        tmp = cons(nodemgr, tmp, FlatHierarchy_get_eltlspec(result));
+        FlatHierarchy_set_eltlspec(result, tmp);
+
+        if (HRC_NODE(NULL) != hrc_result)
+          HrcNode_add_eltl_property_expr(hrc_result, cur_decl);
+      }
+      break;
+
+    case DISELTLSPEC:
+      {
+        node_ptr property_name = cdr(cur_decl);
+
+        if (node_get_type(car(cur_decl)) == CONTEXT) {
+          /* concatenates local context to the current module */
+          node_ptr new_ctx = CompileFlatten_concat_contexts(env, mod_name,
+                                                            caar(cur_decl));
+          tmp = find_node(nodemgr, CONTEXT, new_ctx, cdr(car(cur_decl)));
+        }
+        else tmp = find_node(nodemgr, CONTEXT, mod_name, car(cur_decl));
+
+        /* Support for property names */
+        if (Nil != property_name) {
+          property_name = CompileFlatten_concat_contexts(env, mod_name,
+                                                         property_name);
+          if (!FlatHierarchy_add_property_name(result, property_name)){
+            ErrorMgr_error_redefining(errmgr, property_name);
+          }
+        }
+        tmp = find_node(nodemgr, DISELTLSPEC, tmp, property_name);
+
+        tmp = cons(nodemgr, tmp, FlatHierarchy_get_diseltlspec(result));
+        FlatHierarchy_set_diseltlspec(result, tmp);
+
+        if (HRC_NODE(NULL) != hrc_result)
+          HrcNode_add_diseltl_property_expr(hrc_result, cur_decl);
       }
       break;
 
@@ -2994,6 +3128,36 @@ static void compile_instantiate(const NuSMVEnv_ptr env,
 
         if (HRC_NODE(NULL) != hrc_result)
           HrcNode_add_invar_property_expr(hrc_result, cur_decl);
+      }
+      break;
+
+    case DISINVARSPEC:
+      {
+        node_ptr property_name = cdr(cur_decl);
+
+        if (node_get_type(car(cur_decl)) == CONTEXT) {
+          /* concatenates local context to the current module */
+          node_ptr new_ctx = CompileFlatten_concat_contexts(env, mod_name,
+                                                            caar(cur_decl));
+          tmp = find_node(nodemgr, CONTEXT, new_ctx, cdr(car(cur_decl)));
+        }
+        else tmp = find_node(nodemgr, CONTEXT, mod_name, car(cur_decl));
+
+        /*  Support for property names */
+        if (Nil != property_name) {
+          property_name = CompileFlatten_concat_contexts(env, mod_name,
+                                                         property_name);
+          if (!FlatHierarchy_add_property_name(result, property_name)){
+            ErrorMgr_error_redefining(errmgr, property_name);
+          }
+        }
+        tmp = find_node(nodemgr, DISINVARSPEC, tmp, property_name);
+
+        tmp = cons(nodemgr, tmp, FlatHierarchy_get_disinvarspec(result));
+        FlatHierarchy_set_disinvarspec(result, tmp);
+
+        if (HRC_NODE(NULL) != hrc_result)
+          HrcNode_add_disinvar_property_expr(hrc_result, cur_decl);
       }
       break;
 

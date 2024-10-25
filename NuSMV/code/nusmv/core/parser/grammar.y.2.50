@@ -540,6 +540,11 @@ declaration  : isa
              | pslspec
              | compute
              | constants
+             | eltlspec
+             | disinvarspec
+             | disctlspec
+             | disltlspec
+             | diseltlspec
              ;
 
 /*
@@ -699,6 +704,9 @@ _invarspec    : next_expression optsemi { $$ = $1; }
 invarspec     : TOK_INVARSPEC _invarspec {$$ = new_lined_node(NODEMGR, INVARSPEC, $2, Nil, $1);}
               | TOK_INVARSPEC TOK_NAME var_id TOK_EQDEF _invarspec {$$ = new_lined_node(NODEMGR, INVARSPEC, $5, $3, $1);}
 ;
+disinvarspec  : TOK_DISPROVE TOK_INVARSPEC _invarspec {$$ = new_lined_node(NODEMGR, DISINVARSPEC, $3, Nil, $1);}
+              | TOK_DISPROVE TOK_INVARSPEC TOK_NAME var_id TOK_EQDEF _invarspec {$$ = new_lined_node(NODEMGR, DISINVARSPEC, $6, $4, $1);}
+;
 
 _ctlspec      : ctl_expression optsemi { $$ = $1; }
               | ctl_expression TOK_INCONTEXT context optsemi {$$ = new_node(NODEMGR, CONTEXT, $3, $1);}
@@ -708,6 +716,11 @@ ctlspec       : TOK_SPEC _ctlspec {$$ = new_lined_node(NODEMGR, SPEC, $2, Nil, $
               | TOK_SPEC TOK_NAME var_id TOK_EQDEF  _ctlspec {$$ = new_lined_node(NODEMGR, SPEC, $5, $3, $1);}
               | TOK_CTLSPEC TOK_NAME var_id TOK_EQDEF _ctlspec {$$ = new_lined_node(NODEMGR, SPEC, $5, $3, $1);}
 ;
+disctlspec    : TOK_DISPROVE TOK_SPEC _ctlspec {$$ = new_lined_node(NODEMGR, DISSPEC, $3, Nil, $1);}
+              | TOK_DISPROVE TOK_CTLSPEC _ctlspec {$$ = new_lined_node(NODEMGR, DISSPEC, $3, Nil, $1);}
+              | TOK_DISPROVE TOK_SPEC TOK_NAME var_id TOK_EQDEF  _ctlspec {$$ = new_lined_node(NODEMGR, DISSPEC, $6, $4, $1);}
+              | TOK_DISPROVE TOK_CTLSPEC TOK_NAME var_id TOK_EQDEF _ctlspec {$$ = new_lined_node(NODEMGR, DISSPEC, $6, $4, $1);}
+;
 
 _ltlspec      : ltl_expression optsemi { $$ = $1; }
               | ltl_expression TOK_INCONTEXT context optsemi {$$ = new_node(NODEMGR, CONTEXT, $3, $1);}
@@ -715,6 +728,18 @@ _ltlspec      : ltl_expression optsemi { $$ = $1; }
 
 ltlspec       : TOK_LTLSPEC _ltlspec {$$ = new_lined_node(NODEMGR, LTLSPEC, $2, Nil, $1);}
               | TOK_LTLSPEC TOK_NAME var_id TOK_EQDEF _ltlspec {$$ = new_lined_node(NODEMGR, LTLSPEC, $5, $3, $1);}
+;
+
+disltlspec    : TOK_DISPROVE TOK_LTLSPEC _ltlspec {$$ = new_lined_node(NODEMGR, DISLTLSPEC, $3, Nil, $1);}
+              | TOK_DISPROVE TOK_LTLSPEC TOK_NAME var_id TOK_EQDEF _ltlspec {$$ = new_lined_node(NODEMGR, DISLTLSPEC, $6, $4, $1);}
+;
+
+eltlspec      : TOK_ELTLSPEC _ltlspec {$$ = new_lined_node(NODEMGR, ELTLSPEC, $2, Nil, $1);}
+              | TOK_ELTLSPEC TOK_NAME var_id TOK_EQDEF _ltlspec {$$ = new_lined_node(NODEMGR, ELTLSPEC, $5, $3, $1);}
+;
+
+diseltlspec   : TOK_DISPROVE TOK_ELTLSPEC _ltlspec {$$ = new_lined_node(NODEMGR, DISELTLSPEC, $3, Nil, $1);}
+              | TOK_DISPROVE TOK_ELTLSPEC TOK_NAME var_id TOK_EQDEF _ltlspec {$$ = new_lined_node(NODEMGR, DISELTLSPEC, $6, $4, $1);}
 ;
 
 _compute      : compute_expression optsemi { $$ = $1; }

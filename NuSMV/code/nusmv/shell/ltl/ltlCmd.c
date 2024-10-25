@@ -220,7 +220,7 @@ int CommandCheckLtlSpec(NuSMVEnv_ptr env, int argc, char** argv)
 
   if (formula != NIL(char)) {
     prop_no = PropDb_prop_parse_and_add(prop_db, st,
-                                        formula, Prop_Ltl, Nil);
+                                        formula, Prop_Ltl, Prop_Prove, Nil);
 
     if (prop_no == -1) { status = 1; goto check_ltlspec_exit; }
 

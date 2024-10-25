@@ -102,21 +102,21 @@ void Mc_CheckAGOnlySpec(NuSMVEnv_ptr env, Prop_ptr prop)
     }
 
     StreamMgr_print_output(streams,  "-- ");
-    print_spec(StreamMgr_get_output_ostream(streams),
+    print_name_or_spec(StreamMgr_get_output_ostream(streams),
                prop, get_prop_print_method(opts));
 
     if (check_AG_only(fsm, enc, prop, spec, Nil,
                       SexpFsm_get_symbols_list(sexp_fsm), &trace)) {
 
       /* property is true */
-      StreamMgr_print_output(streams,  "is true\n");
+      StreamMgr_print_output(streams,  "is true [%s]\n", Prop_get_mode(prop) != Prop_Prove ? "failure" : "success");
       Prop_set_status(prop, Prop_True);
     }
     else { /* property is false */
-      StreamMgr_print_output(streams,  "is false\n");
+      StreamMgr_print_output(streams,  "is false [%s]\n", Prop_get_mode(prop) != Prop_Prove ? "success" : "failure");
       Prop_set_status(prop, Prop_False);
 
-      if (TRACE(NULL) != trace) {
+      if (TRACE(NULL) != trace && Prop_get_mode(prop) != Prop_Disprove) {
         /* Print the trace using default plugin */
         StreamMgr_print_output(streams, 
             "-- as demonstrated by the following execution sequence\n");

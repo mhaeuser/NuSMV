@@ -85,7 +85,11 @@ typedef enum ModelSection_TAG{
   CTLSPEC_T,
   JUSTICE_T,
   FAIRNESS_T,
-  COMPASSION_T
+  COMPASSION_T,
+  ELTLSPEC_T,
+  DISINVARSPEC_T,
+  DISLTLSPEC_T,
+  DISCTLSPEC_T,
 }ModelSectionTag;
 
 /*---------------------------------------------------------------------------*/
@@ -1285,8 +1289,13 @@ static int compile_write_udg_flatten_spec(const NuSMVEnv_ptr env,
       return 0;
 
   nusmv_assert((SPEC == node_get_type(n)) ||
+               (DISSPEC == node_get_type(n)) ||
                (LTLSPEC == node_get_type(n)) ||
+               (DISLTLSPEC == node_get_type(n)) ||
+               (ELTLSPEC == node_get_type(n)) ||
+               (DISELTLSPEC == node_get_type(n)) ||
                (INVARSPEC == node_get_type(n)) ||
+               (DISINVARSPEC == node_get_type(n)) ||
                (PSLSPEC == node_get_type(n)) ||
                (COMPUTE == node_get_type(n)));
 
@@ -1420,8 +1429,13 @@ static int compile_write_udg_flatten_bfexpr(const NuSMVEnv_ptr env,
       node_ptr expr, name;
       /* Support for property names */
       nusmv_assert(SPEC == node_get_type(n) ||
+                   DISSPEC == node_get_type(n) ||
                    LTLSPEC == node_get_type(n) ||
+                   DISLTLSPEC == node_get_type(n) ||
+                   ELTLSPEC == node_get_type(n) ||
+                   DISELTLSPEC == node_get_type(n) ||
                    INVARSPEC == node_get_type(n) ||
+                   DISINVARSPEC == node_get_type(n) ||
                    PSLSPEC == node_get_type(n) ||
                    COMPUTE == node_get_type(n));
 
@@ -2017,6 +2031,10 @@ static void compile_write_udg_bool_specs(const NuSMVEnv_ptr env,
                               "CTLSPEC\n", det_layer,
                               dag_info, defines);
   compile_write_udg_bool_spec(env, out, enc,
+                              FlatHierarchy_get_disspec(hierarchy),
+                              "DISPROVE CTLSPEC\n", det_layer,
+                              dag_info, defines);
+  compile_write_udg_bool_spec(env, out, enc,
                               FlatHierarchy_get_compute(hierarchy),
                               "COMPUTE\n", det_layer,
                               dag_info, defines);
@@ -2025,8 +2043,24 @@ static void compile_write_udg_bool_specs(const NuSMVEnv_ptr env,
                               "LTLSPEC\n", det_layer,
                               dag_info, defines);
   compile_write_udg_bool_spec(env, out, enc,
+                              FlatHierarchy_get_disltlspec(hierarchy),
+                              "DISPROVE LTLSPEC\n", det_layer,
+                              dag_info, defines);
+  compile_write_udg_bool_spec(env, out, enc,
+                              FlatHierarchy_get_eltlspec(hierarchy),
+                              "ELTLSPEC\n", det_layer,
+                              dag_info, defines);
+  compile_write_udg_bool_spec(env, out, enc,
+                              FlatHierarchy_get_diseltlspec(hierarchy),
+                              "DISPROVE ELTLSPEC\n", det_layer,
+                              dag_info, defines);
+  compile_write_udg_bool_spec(env, out, enc,
                               FlatHierarchy_get_invarspec(hierarchy),
                               "INVARSPEC\n", det_layer,
+                              dag_info, defines);
+  compile_write_udg_bool_spec(env, out, enc,
+                              FlatHierarchy_get_disinvarspec(hierarchy),
+                              "DISPROVE INVARSPEC\n", det_layer,
                               dag_info, defines);
 
   { /* PSL specifications are not supported at the moment (see issue 2626) */
@@ -3173,9 +3207,14 @@ static void compile_write_print_node_type(FILE* buffer, node_ptr node)
   case JUSTICE: fprintf(buffer, "JUSTICE"); break;
   case COMPASSION: fprintf(buffer, "COMPASSION"); break;
   case SPEC: fprintf(buffer, "SPEC"); break;
+  case DISSPEC: fprintf(buffer, "DISPROVE SPEC"); break;
   case LTLSPEC: fprintf(buffer, "LTLSPEC"); break;
+  case DISLTLSPEC: fprintf(buffer, "DISPROVE LTLSPEC"); break;
+  case ELTLSPEC: fprintf(buffer, "ELTLSPEC"); break;
+  case DISELTLSPEC: fprintf(buffer, "DISPROVE ELTLSPEC"); break;
   case PSLSPEC: fprintf(buffer, "PSLSPEC"); break; /* 110 */
   case INVARSPEC: fprintf(buffer, "INVARSPEC"); break;
+  case DISINVARSPEC: fprintf(buffer, "DISPROVE INVARSPEC"); break;
   case COMPUTE: fprintf(buffer, "COMPUTE"); break;
   case DEFINE: fprintf(buffer, "DEFINE"); break;
   case ISA: fprintf(buffer, "ISA"); break;

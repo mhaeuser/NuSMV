@@ -571,8 +571,13 @@ node_ptr flattener_core_flatten(FlattenerBase_ptr self,
     }
 
   case SPEC:
+  case DISSPEC:
   case INVARSPEC:
+  case DISINVARSPEC:
   case LTLSPEC:
+  case DISLTLSPEC:
+  case ELTLSPEC:
+  case DISELTLSPEC:
   case PSLSPEC:
   case COMPUTE:
     {

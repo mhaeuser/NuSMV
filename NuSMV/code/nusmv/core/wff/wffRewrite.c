@@ -168,8 +168,13 @@ Pair_ptr Wff_Rewrite_rewrite_formula_generic(const NuSMVEnv_ptr env,
 
   switch(spec_type) {
   case SPEC: break;
+  case DISSPEC: break;
   case LTLSPEC: break;
+  case DISLTLSPEC: break;
+  case ELTLSPEC: break;
+  case DISELTLSPEC: break;
   case INVARSPEC: break;
+  case DISINVARSPEC: break;
   case PSLSPEC: break;
   case COMPUTE: break;
   default:
@@ -264,7 +269,7 @@ static Pair_ptr _wff_rewrite_extract_next_input_predicates(WffRewriter* rewriter
   spec = Compile_FlattenSexpExpandDefine(symb_table, spec, Nil);
   rewriter->new_var_exprs = new_var_exprs;
 
-  if (INVARSPEC == rewriter->spec_type) {
+  if (INVARSPEC == rewriter->spec_type || DISINVARSPEC == rewriter->spec_type) {
     node_ptr formula_to_free = Nil;
     /* convert temporary to ltl to process it with the same function */
     spec = new_node(nodemgr, OP_GLOBAL, spec, Nil);
@@ -274,7 +279,7 @@ static Pair_ptr _wff_rewrite_extract_next_input_predicates(WffRewriter* rewriter
     free_node(nodemgr, formula_to_free);
   }
   else {
-    nusmv_assert(LTLSPEC == rewriter->spec_type);
+    nusmv_assert(LTLSPEC == rewriter->spec_type || DISLTLSPEC == rewriter->spec_type);
 
     formula_kind = _wff_rewrite_input(rewriter, &spec);
   }
@@ -632,7 +637,7 @@ static node_ptr _wff_rewrite_create_substitution(WffRewriter* rewriter,
     break;
 
   case WFF_REWRITE_METHOD_DEADLOCK_FREE:
-    if (INVARSPEC == rewriter->spec_type) {
+    if (INVARSPEC == rewriter->spec_type || DISINVARSPEC == rewriter->spec_type) {
       result = new_var;
     }
     else {
@@ -799,7 +804,7 @@ _wff_rewrite_ltl2invar(const NuSMVEnv_ptr env,
                        const boolean ltl2invar_negate_property)
 {
 
-  if (INVARSPEC == spec_type) {
+  if (INVARSPEC == spec_type || DISINVARSPEC == spec_type) {
     return _wff_rewrite_generalized_property(env, method, eproptype, layer, outfh,
                                              spec, spec_type, initialize_monitor_to_true);
   }
@@ -807,8 +812,18 @@ _wff_rewrite_ltl2invar(const NuSMVEnv_ptr env,
     WffRewriter_InvariantKind kind;
     SymbTable_ptr st = FlatHierarchy_get_symb_table(outfh);
     Pair_ptr retval = NULL;
+    short int new_type;
 
-    nusmv_assert(LTLSPEC == spec_type);
+    switch (spec_type) {
+      case LTLSPEC:
+        new_type = INVARSPEC;
+        break;
+      case DISLTLSPEC:
+        new_type = DISINVARSPEC;
+        break;
+      default:
+        nusmv_assert(false);
+    }
 
     kind = _wff_invariant_kind(st, spec, Nil, WFF_REWRITER_NONE);
 
@@ -834,7 +849,7 @@ _wff_rewrite_ltl2invar(const NuSMVEnv_ptr env,
         }
         nusmv_assert(Nil == NODE_PTR(Pair_get_first(prop_pair)));
         retval = _wff_rewrite_generalized_property(env, method, eproptype, layer,
-                                                   outfh, invariant, INVARSPEC,
+                                                   outfh, invariant, new_type,
                                                    initialize_monitor_to_true);
       }
       else if (WFF_REWRITER_PROP_IMP_INVAR == kind) {
@@ -874,13 +889,13 @@ _wff_rewrite_ltl2invar(const NuSMVEnv_ptr env,
           retval = _wff_rewrite_generalized_property(env, method,
                                                      WFF_REWRITER_REWRITE_INPUT_NEXT,
                                                      layer, outfh, invariant,
-                                                     INVARSPEC,
+                                                     new_type,
                                                      initialize_monitor_to_true);
         }
         else {
           const NodeMgr_ptr nodemgr =
             NODE_MGR(NuSMVEnv_get_value(env, ENV_NODE_MGR));
-          retval = Pair_create(invariant, VOIDPTR_FROM_INT(INVARSPEC));
+          retval = Pair_create(invariant, VOIDPTR_FROM_INT(new_type));
         }
         FlatHierarchy_mergeinto(outfh, premises_fh);
         FlatHierarchy_destroy(premises_fh);
@@ -914,11 +929,11 @@ _wff_rewrite_ltl2invar(const NuSMVEnv_ptr env,
           retval = _wff_rewrite_generalized_property(env, method,
                                                      WFF_REWRITER_REWRITE_INPUT_NEXT,
                                                      layer, outfh, invariant,
-                                                     INVARSPEC,
+                                                     new_type,
                                                      initialize_monitor_to_true);
         }
         else {
-          retval = Pair_create(invariant, VOIDPTR_FROM_INT(INVARSPEC));
+          retval = Pair_create(invariant, VOIDPTR_FROM_INT(new_type));
         }
         FlatHierarchy_mergeinto(outfh, premises_fh);
         FlatHierarchy_destroy(premises_fh);

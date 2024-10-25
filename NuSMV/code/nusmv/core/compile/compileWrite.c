@@ -1950,8 +1950,13 @@ static int compile_write_flatten_spec(const NuSMVEnv_ptr env,
       return 0;
 
   nusmv_assert((SPEC == node_get_type(n)) ||
+               (DISSPEC == node_get_type(n)) ||
                (LTLSPEC == node_get_type(n)) ||
+               (DISLTLSPEC == node_get_type(n)) ||
+               (ELTLSPEC == node_get_type(n)) ||
+               (DISELTLSPEC == node_get_type(n)) ||
                (INVARSPEC == node_get_type(n)) ||
+               (DISINVARSPEC == node_get_type(n)) ||
                (PSLSPEC == node_get_type(n)) ||
                (COMPUTE == node_get_type(n)));
 
@@ -2003,8 +2008,13 @@ static int compile_write_obfuscated_flatten_spec(const NuSMVEnv_ptr env,
       return 0;
 
   nusmv_assert((SPEC == node_get_type(n)) ||
+               (DISSPEC == node_get_type(n)) ||
                (LTLSPEC == node_get_type(n)) ||
+               (DISLTLSPEC == node_get_type(n)) ||
+               (ELTLSPEC == node_get_type(n)) ||
+               (DISELTLSPEC == node_get_type(n)) ||
                (INVARSPEC == node_get_type(n)) ||
+               (DISINVARSPEC == node_get_type(n)) ||
                (PSLSPEC == node_get_type(n)) ||
                (COMPUTE == node_get_type(n)));
 
@@ -2270,8 +2280,13 @@ static int compile_write_flatten_bfexpr(const NuSMVEnv_ptr env,
 
       /* Support for property names */
       nusmv_assert(SPEC == node_get_type(n) ||
+                   DISSPEC == node_get_type(n) ||
                    LTLSPEC == node_get_type(n) ||
+                   DISLTLSPEC == node_get_type(n) ||
+                   ELTLSPEC == node_get_type(n) ||
+                   DISELTLSPEC == node_get_type(n) ||
                    INVARSPEC == node_get_type(n) ||
+                   DISINVARSPEC == node_get_type(n) ||
                    PSLSPEC == node_get_type(n) ||
                    COMPUTE == node_get_type(n));
 
@@ -3112,12 +3127,22 @@ static void compile_write_flat_specs(const NuSMVEnv_ptr env,
   /* dumps the properties */
   compile_write_flat_spec(env, cwd, FlatHierarchy_get_spec(cwd->hierarchy),
                           "CTLSPEC\n");
+  compile_write_flat_spec(env, cwd, FlatHierarchy_get_disspec(cwd->hierarchy),
+                          "DISPROVE CTLSPEC\n");
   compile_write_flat_spec(env, cwd, FlatHierarchy_get_compute(cwd->hierarchy),
                           "COMPUTE\n");
   compile_write_flat_spec(env, cwd, FlatHierarchy_get_ltlspec(cwd->hierarchy),
                           "LTLSPEC\n");
+  compile_write_flat_spec(env, cwd, FlatHierarchy_get_disltlspec(cwd->hierarchy),
+                          "DISPROVE LTLSPEC\n");
+  compile_write_flat_spec(env, cwd, FlatHierarchy_get_eltlspec(cwd->hierarchy),
+                          "ELTLSPEC\n");
+  compile_write_flat_spec(env, cwd, FlatHierarchy_get_diseltlspec(cwd->hierarchy),
+                          "DISPROVE ELTLSPEC\n");
   compile_write_flat_spec(env, cwd, FlatHierarchy_get_invarspec(cwd->hierarchy),
                           "INVARSPEC\n");
+  compile_write_flat_spec(env, cwd, FlatHierarchy_get_disinvarspec(cwd->hierarchy),
+                          "DISPROVE INVARSPEC\n");
 
   { /* PSL specifications are not supported at the moment */
     node_ptr pslspec = FlatHierarchy_get_pslspec(cwd->hierarchy);
@@ -3159,6 +3184,10 @@ static void compile_write_obfuscated_flat_specs(const NuSMVEnv_ptr env,
                                      "CTLSPEC\n");
   compile_write_obfuscated_flat_spec(env,
                                      cwd,
+                                     FlatHierarchy_get_disspec(cwd->hierarchy),
+                                     "DISPROVE CTLSPEC\n");
+  compile_write_obfuscated_flat_spec(env,
+                                     cwd,
                                      FlatHierarchy_get_compute(cwd->hierarchy),
                                      "COMPUTE\n");
   compile_write_obfuscated_flat_spec(env,
@@ -3167,8 +3196,24 @@ static void compile_write_obfuscated_flat_specs(const NuSMVEnv_ptr env,
                                      "LTLSPEC\n");
   compile_write_obfuscated_flat_spec(env,
                                      cwd,
+                                     FlatHierarchy_get_disltlspec(cwd->hierarchy),
+                                     "DISPROVE LTLSPEC\n");
+  compile_write_obfuscated_flat_spec(env,
+                                     cwd,
+                                     FlatHierarchy_get_eltlspec(cwd->hierarchy),
+                                     "ELTLSPEC\n");
+  compile_write_obfuscated_flat_spec(env,
+                                     cwd,
+                                     FlatHierarchy_get_diseltlspec(cwd->hierarchy),
+                                     "DISPROVE ELTLSPEC\n");
+  compile_write_obfuscated_flat_spec(env,
+                                     cwd,
                                      FlatHierarchy_get_invarspec(cwd->hierarchy),
                                      "INVARSPEC\n");
+  compile_write_obfuscated_flat_spec(env,
+                                     cwd,
+                                     FlatHierarchy_get_disinvarspec(cwd->hierarchy),
+                                     "DISPROVE INVARSPEC\n");
 
   { /* PSL specifications are not supported at the moment */
     node_ptr pslspec = FlatHierarchy_get_pslspec(cwd->hierarchy);
@@ -3389,12 +3434,23 @@ static void compile_write_bool_specs(const NuSMVEnv_ptr env,
   compile_write_bool_spec(env, cwd,
                           FlatHierarchy_get_spec(cwd->hierarchy),
                           "CTLSPEC\n");
+  compile_write_bool_spec(env, cwd,
+                          FlatHierarchy_get_disspec(cwd->hierarchy),
+                          "DISPROVE CTLSPEC\n");
   compile_write_bool_spec(env, cwd, FlatHierarchy_get_compute(cwd->hierarchy),
                           "COMPUTE\n");
   compile_write_bool_spec(env, cwd, FlatHierarchy_get_ltlspec(cwd->hierarchy),
                           "LTLSPEC\n");
+  compile_write_bool_spec(env, cwd, FlatHierarchy_get_disltlspec(cwd->hierarchy),
+                          "DISPROVE LTLSPEC\n");
+  compile_write_bool_spec(env, cwd, FlatHierarchy_get_eltlspec(cwd->hierarchy),
+                          "ELTLSPEC\n");
+  compile_write_bool_spec(env, cwd, FlatHierarchy_get_diseltlspec(cwd->hierarchy),
+                          "DISPROVE ELTLSPEC\n");
   compile_write_bool_spec(env, cwd, FlatHierarchy_get_invarspec(cwd->hierarchy),
                           "INVARSPEC\n");
+  compile_write_bool_spec(env, cwd, FlatHierarchy_get_disinvarspec(cwd->hierarchy),
+                          "DISPROVE INVARSPEC\n");
 
   { /* PSL specifications are not supported at the moment */
     node_ptr pslspec = FlatHierarchy_get_pslspec(cwd->hierarchy);

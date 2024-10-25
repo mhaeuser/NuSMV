@@ -2269,7 +2269,7 @@ int CommandWriteCoiModel(NuSMVEnv_ptr env, int argc, char** argv)
               "-l, -i, -s, -c or -q options\n");
       goto write_coi_usage;
     }
-    prop_no = PropDb_prop_parse_and_add(prop_db, st, formula, prop_type, Nil);
+    prop_no = PropDb_prop_parse_and_add(prop_db, st, formula, prop_type, Prop_Prove, Nil);
     if (prop_no == -1) { goto write_coi_free; }
   }
 

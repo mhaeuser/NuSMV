@@ -260,7 +260,7 @@ void Ltl_StructCheckLtlSpec_build(Ltl_StructCheckLtlSpec_ptr self);
   \sa ltl_stuctcheckltlspec_check_compassion,
   ltl_structcheckltlspec_check_el_bwd, ltl_structcheckltlspec_check_el_fwd
 */
-void Ltl_StructCheckLtlSpec_check(Ltl_StructCheckLtlSpec_ptr self);
+void Ltl_StructCheckLtlSpec_check(Ltl_StructCheckLtlSpec_ptr self, boolean existential);
 
 /*!
   \methodof Ltl_StructCheckLtlSpec

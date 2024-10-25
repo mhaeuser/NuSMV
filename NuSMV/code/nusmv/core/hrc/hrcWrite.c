@@ -329,7 +329,7 @@ static void hrc_write_module_instance(FILE * ofile,
                            HrcNode_get_compassion_exprs_iter(hrcNode),
                            "COMPASSION\n");
 
-  /* Writes specifications (INVARSPEC CTLSPEC LTLSPEC PSLSPEC
+  /* Writes specifications (INVARSPEC CTLSPEC LTLSPEC ELTLSPEC PSLSPEC
      COMPUTE) */
   hrc_write_specifications(env, ofile, hrcNode);
 
@@ -679,8 +679,11 @@ static void hrc_write_spec_split(const NuSMVEnv_ptr env,
       node_ptr name = cdr(spec);
 
       nusmv_assert((SPEC == node_get_type(spec)) ||
+                   (DISSPEC == node_get_type(spec)) ||
                    (LTLSPEC == node_get_type(spec)) ||
+                   (DISLTLSPEC == node_get_type(spec)) ||
                    (INVARSPEC == node_get_type(spec)) ||
+                   (DISINVARSPEC == node_get_type(spec)) ||
                    (PSLSPEC == node_get_type(spec)) ||
                    (COMPUTE == node_get_type(spec)));
 
@@ -719,14 +722,29 @@ static void hrc_write_specifications(const NuSMVEnv_ptr env,
                        HrcNode_get_ctl_properties_iter(hrcNode),
                        "CTLSPEC\n");
   hrc_write_spec_split(env, out,
+                       HrcNode_get_disctl_properties_iter(hrcNode),
+                       "DISPROVE CTLSPEC\n");
+  hrc_write_spec_split(env, out,
                        HrcNode_get_ltl_properties_iter(hrcNode),
                        "LTLSPEC\n");
+  hrc_write_spec_split(env, out,
+                       HrcNode_get_disltl_properties_iter(hrcNode),
+                       "DISPROVE LTLSPEC\n");
+  hrc_write_spec_split(env, out,
+                       HrcNode_get_eltl_properties_iter(hrcNode),
+                       "ELTLSPEC\n");
+  hrc_write_spec_split(env, out,
+                       HrcNode_get_diseltl_properties_iter(hrcNode),
+                       "DISPROVE ELTLSPEC\n");
   hrc_write_spec_split(env, out,
                        HrcNode_get_compute_properties_iter(hrcNode),
                        "COMPUTE\n");
   hrc_write_spec_split(env, out,
                        HrcNode_get_invar_properties_iter(hrcNode),
                        "INVARSPEC\n");
+  hrc_write_spec_split(env, out,
+                       HrcNode_get_disinvar_properties_iter(hrcNode),
+                       "DISPROVE INVARSPEC\n");
   hrc_write_spec_split(env, out,
                        HrcNode_get_psl_properties_iter(hrcNode),
                        "PSLSPEC\n");

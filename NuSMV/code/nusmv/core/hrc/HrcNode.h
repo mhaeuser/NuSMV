@@ -1135,6 +1135,44 @@ Oiter HrcNode_get_ctl_properties_iter(const HrcNode_ptr self);
 */
 void HrcNode_add_ctl_property_expr(HrcNode_ptr self, node_ptr ctl);
 
+/* DISCTLSPEC */
+
+/*!
+  \methodof HrcNode
+  \brief Replaces the list of DISCTL properties.
+
+  Replaces the list of DISCTL properties.
+
+  \se Structure is updated
+
+  \sa optional
+*/
+void HrcNode_replace_disctl_properties(HrcNode_ptr self, Olist_ptr disctls);
+
+/*!
+  \methodof HrcNode
+  \brief Gets the list of DISCTL properties.
+
+  Gets the list of DISCTL properties.
+
+  \se None
+
+  \sa optional
+*/
+Oiter HrcNode_get_disctl_properties_iter(const HrcNode_ptr self);
+
+/*!
+  \methodof HrcNode
+  \brief Adds a DISCTL property.
+
+  Adds a DISCTL property.
+
+  \se Structure is updated
+
+  \sa optional
+*/
+void HrcNode_add_disctl_property_expr(HrcNode_ptr self, node_ptr disctl);
+
 /* LTLSPEC */
 
 /*!
@@ -1172,6 +1210,120 @@ Oiter HrcNode_get_ltl_properties_iter(const HrcNode_ptr self);
   \sa optional
 */
 void HrcNode_add_ltl_property_expr(HrcNode_ptr self, node_ptr ltl);
+
+/* DISLTLSPEC */
+
+/*!
+  \methodof HrcNode
+  \brief Replaces the list of DISLTL properties.
+
+  Replaces the list of DISLTL properties.
+
+  \se Structure is updated
+
+  \sa optional
+*/
+void HrcNode_replace_disltl_properties(HrcNode_ptr self, Olist_ptr disltls);
+
+/*!
+  \methodof HrcNode
+  \brief Gets the list of DISLTL properties.
+
+  Gets the list of DISLTL properties.
+
+  \se None
+
+  \sa optional
+*/
+Oiter HrcNode_get_disltl_properties_iter(const HrcNode_ptr self);
+
+/*!
+  \methodof HrcNode
+  \brief Adds an DISLTL property.
+
+  Adds an DISLTL property.
+
+  \se Structure is updated
+
+  \sa optional
+*/
+void HrcNode_add_disltl_property_expr(HrcNode_ptr self, node_ptr disltl);
+
+/* ELTLSPEC */
+
+/*!
+  \methodof HrcNode
+  \brief Replaces the list of ELTL properties.
+
+  Replaces the list of ELTL properties.
+
+  \se Structure is updated
+
+  \sa optional
+*/
+void HrcNode_replace_eltl_properties(HrcNode_ptr self, Olist_ptr eltls);
+
+/*!
+  \methodof HrcNode
+  \brief Gets the list of ELTL properties.
+
+  Gets the list of ELTL properties.
+
+  \se None
+
+  \sa optional
+*/
+Oiter HrcNode_get_eltl_properties_iter(const HrcNode_ptr self);
+
+/*!
+  \methodof HrcNode
+  \brief Adds an ELTL property.
+
+  Adds an ELTL property.
+
+  \se Structure is updated
+
+  \sa optional
+*/
+void HrcNode_add_eltl_property_expr(HrcNode_ptr self, node_ptr eltl);
+
+/* DISELTLSPEC */
+
+/*!
+  \methodof HrcNode
+  \brief Replaces the list of DISELTL properties.
+
+  Replaces the list of DISELTL properties.
+
+  \se Structure is updated
+
+  \sa optional
+*/
+void HrcNode_replace_diseltl_properties(HrcNode_ptr self, Olist_ptr diseltls);
+
+/*!
+  \methodof HrcNode
+  \brief Gets the list of DISELTL properties.
+
+  Gets the list of DISELTL properties.
+
+  \se None
+
+  \sa optional
+*/
+Oiter HrcNode_get_diseltl_properties_iter(const HrcNode_ptr self);
+
+/*!
+  \methodof HrcNode
+  \brief Adds an DISELTL property.
+
+  Adds an DISELTL property.
+
+  \se Structure is updated
+
+  \sa optional
+*/
+void HrcNode_add_diseltl_property_expr(HrcNode_ptr self, node_ptr diseltl);
 
 /* PSLSPEC */
 
@@ -1248,6 +1400,44 @@ Oiter HrcNode_get_invar_properties_iter(const HrcNode_ptr self);
   \sa optional
 */
 void HrcNode_add_invar_property_expr(HrcNode_ptr self, node_ptr invar);
+
+/* DISINVARSPEC */
+
+/*!
+  \methodof HrcNode
+  \brief Replaces the list of DISINVARIANT properties.
+
+  Replaces the list of DISINVARIANT properties.
+
+  \se Structure is updated
+
+  \sa optional
+*/
+void HrcNode_replace_disinvar_properties(HrcNode_ptr self, Olist_ptr disinvars);
+
+/*!
+  \methodof HrcNode
+  \brief Gets the list of DISINVARIANT properties.
+
+  Gets the list of DISINVARIANT properties.
+
+  \se None
+
+  \sa optional
+*/
+Oiter HrcNode_get_disinvar_properties_iter(const HrcNode_ptr self);
+
+/*!
+  \methodof HrcNode
+  \brief Adds an DISINVARIANT property.
+
+  Adds an DISINVARIANT property.
+
+  \se Structure is updated
+
+  \sa optional
+*/
+void HrcNode_add_disinvar_property_expr(HrcNode_ptr self, node_ptr disinvar);
 
 /* COMPUTESPEC */
 

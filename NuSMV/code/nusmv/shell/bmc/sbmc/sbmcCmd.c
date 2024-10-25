@@ -122,6 +122,7 @@ static Outcome
 sbmc_cmd_options_handling(NuSMVEnv_ptr env,
                           int argc, char** argv,
                           Prop_Type prop_type,
+                          Prop_Mode prop_mode,
 
                           /* output parameters: */
                           Prop_ptr* res_prop,
@@ -221,7 +222,7 @@ int Sbmc_CommandCheckLtlSpecSBmc(NuSMVEnv_ptr env, int argc, char** argv)
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = sbmc_cmd_options_handling(env, argc, argv,
-                                               Prop_Ltl, &ltlprop,
+                                               Prop_Ltl, Prop_Prove, &ltlprop,
                                                &k, &relative_loop,
                                                &fname,
                                                NULL, /* -N */
@@ -295,7 +296,7 @@ int Sbmc_CommandGenLtlSpecSBmc(NuSMVEnv_ptr env, int argc, char** argv)
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = sbmc_cmd_options_handling(env, argc, argv, Prop_Ltl,
-                                               &ltlprop,
+                                               Prop_Prove, &ltlprop,
                                                &k, &relative_loop,
                                                &fname,
                                                NULL, NULL /* -N -c */,
@@ -369,7 +370,7 @@ int Sbmc_CommandLTLCheckZigzagInc(NuSMVEnv_ptr env, int argc, char** argv)
   /* ----------------------------------------------------------------------- */
   /* Options handling: */
   opt_handling_res = sbmc_cmd_options_handling(env, argc, argv,
-                                               Prop_Ltl, &ltlprop,
+                                               Prop_Ltl, Prop_Prove, &ltlprop,
                                                &k,
                                                NULL, NULL, /* l, o */
                                                &do_virtual_unrolling,
@@ -670,7 +671,7 @@ static int sbmc_CommandCheckPslSpecSbmc(NuSMVEnv_ptr env, int argc, char** argv)
   if (formula != NIL(char)) {
     SymbTable_ptr st = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
     prop_no = PropDb_prop_parse_and_add(prop_db, st,
-                                        formula, Prop_Psl, Nil);
+                                        formula, Prop_Psl, Prop_Prove, Nil);
     if (prop_no == -1) { status = 1; goto label_clean_and_exit; }
   }
 
@@ -977,7 +978,7 @@ static int sbmc_CommandCheckPslSpecSbmcInc(NuSMVEnv_ptr env, int argc, char** ar
   if (formula != NIL(char)) {
     SymbTable_ptr st = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
     prop_no = PropDb_prop_parse_and_add(prop_db, st,
-                                        formula, Prop_Psl, Nil);
+                                        formula, Prop_Psl, Prop_Prove, Nil);
     if (prop_no == -1) { status = 1; goto label_clean_and_exit; }
   }
 
@@ -1070,6 +1071,7 @@ static Outcome
 sbmc_cmd_options_handling(NuSMVEnv_ptr env,
                           int argc, char** argv,
                           Prop_Type prop_type,
+                          Prop_Mode prop_mode,
 
                           /* output parameters: */
                           Prop_ptr* res_prop,
@@ -1159,6 +1161,10 @@ sbmc_cmd_options_handling(NuSMVEnv_ptr env,
         /* specified property's type is not what the caller expected */
         return OUTCOME_GENERIC_ERROR;
       }
+      if ( Prop_check_mode(*res_prop, prop_mode) != 0 ) {
+        /* specified property's mode is not what the caller expected */
+        return OUTCOME_GENERIC_ERROR;
+      }
 
       break;
     } /* case 'n' */
@@ -1192,6 +1198,10 @@ sbmc_cmd_options_handling(NuSMVEnv_ptr env,
                                              prop_idx);
         if ( Prop_check_type(*res_prop, prop_type) != 0 ) {
           /* specified property's type is not what the caller expected */
+          return OUTCOME_GENERIC_ERROR;
+        }
+        if ( Prop_check_mode(*res_prop, prop_mode) != 0 ) {
+          /* specified property's mode is not what the caller expected */
           return OUTCOME_GENERIC_ERROR;
         }
 
@@ -1328,7 +1338,7 @@ sbmc_cmd_options_handling(NuSMVEnv_ptr env,
     }
 
     idx = PropDb_prop_parse_and_add(PROP_DB(NuSMVEnv_get_value(env, ENV_PROP_DB)), st,
-                                    str_formula, prop_type, Nil);
+                                    str_formula, prop_type, prop_mode, Nil);
     if (idx == -1) {
       FREE(str_formula);
       return OUTCOME_GENERIC_ERROR;

@@ -703,6 +703,7 @@ int Bmc_CommandCheckInvarBmc(NuSMVEnv_ptr env, int argc, char** argv);
 Outcome
 Bmc_cmd_options_handling(NuSMVEnv_ptr env, int argc, char** argv,
                          Prop_Type prop_type,
+                         Prop_Mode prop_mode,
                          Prop_ptr* res_prop,
                          int* res_k,
                          int* res_l,

@@ -97,7 +97,7 @@ typedef struct FlatHierarchy* FlatHierarchy_ptr;
   The class is used to store information
 obtained after flattening module hierarchy.
 These class stores:
-the list of TRANS, INIT, INVAR, ASSIGN, SPEC, COMPUTE, LTLSPEC,
+the list of TRANS, INIT, INVAR, ASSIGN, SPEC, COMPUTE, LTLSPEC, ELTLSPEC,
 PSLSPEC, INVARSPEC, JUSTICE, COMPASSION,
 a full list of variables declared in the hierarchy,
 a hash table associating variables to their assignments and constrains.
@@ -358,6 +358,20 @@ void FlatHierarchy_set_spec(FlatHierarchy_ptr cmp, node_ptr n);
 
   \todo Missing description
 */
+node_ptr FlatHierarchy_get_disspec(FlatHierarchy_ptr cmp);
+
+/*!
+  \brief \todo Missing synopsis
+
+  \todo Missing description
+*/
+void FlatHierarchy_set_disspec(FlatHierarchy_ptr cmp, node_ptr n);
+
+/*!
+  \brief \todo Missing synopsis
+
+  \todo Missing description
+*/
 node_ptr FlatHierarchy_get_ltlspec(FlatHierarchy_ptr cmp);
 
 /*!
@@ -373,6 +387,51 @@ FlatHierarchy_set_ltlspec(FlatHierarchy_ptr cmp, node_ptr n);
 
   \todo Missing description
 */
+node_ptr FlatHierarchy_get_disltlspec(FlatHierarchy_ptr cmp);
+
+/*!
+  \brief \todo Missing synopsis
+
+  Input is a cons list, with elements DISLTLSPEC nodes
+*/
+void
+FlatHierarchy_set_disltlspec(FlatHierarchy_ptr cmp, node_ptr n);
+
+/*!
+  \brief \todo Missing synopsis
+
+  \todo Missing description
+*/
+node_ptr FlatHierarchy_get_eltlspec(FlatHierarchy_ptr cmp);
+
+/*!
+  \brief \todo Missing synopsis
+
+  Input is a cons list, with elements ELTLSPEC nodes
+*/
+void
+FlatHierarchy_set_eltlspec(FlatHierarchy_ptr cmp, node_ptr n);
+
+/*!
+  \brief \todo Missing synopsis
+
+  \todo Missing description
+*/
+node_ptr FlatHierarchy_get_diseltlspec(FlatHierarchy_ptr cmp);
+
+/*!
+  \brief \todo Missing synopsis
+
+  Input is a cons list, with elements DISELTLSPEC nodes
+*/
+void
+FlatHierarchy_set_diseltlspec(FlatHierarchy_ptr cmp, node_ptr n);
+
+/*!
+  \brief \todo Missing synopsis
+
+  \todo Missing description
+*/
 node_ptr FlatHierarchy_get_invarspec(FlatHierarchy_ptr cmp);
 
 /*!
@@ -381,6 +440,10 @@ node_ptr FlatHierarchy_get_invarspec(FlatHierarchy_ptr cmp);
   \todo Missing description
 */
 void FlatHierarchy_set_invarspec(FlatHierarchy_ptr cmp,
+                                        node_ptr n);
+
+node_ptr FlatHierarchy_get_disinvarspec(FlatHierarchy_ptr cmp);
+void FlatHierarchy_set_disinvarspec(FlatHierarchy_ptr cmp,
                                         node_ptr n);
 
 /*!

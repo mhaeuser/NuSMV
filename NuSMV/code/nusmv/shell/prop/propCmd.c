@@ -610,7 +610,7 @@ int CommandAddProperty (NuSMVEnv_ptr env, int argc, char** argv)
   argv += util_optind-1;
   argc -= util_optind-1;
 
-  res = PropDb_prop_parse_and_add(prop_db, symb_table, prop, type, expr_name);
+  res = PropDb_prop_parse_and_add(prop_db, symb_table, prop, type, Prop_Prove, expr_name);
 
   if (-1 < res) return 0;
   else return 1;
@@ -788,7 +788,7 @@ int CommandCheckProperty (NuSMVEnv_ptr env, int argc, char** argv)
   /* command hierarchy control */
   if (Compile_check_if_model_was_built(env, errstream, false)) return 1;
 
-  return PropDb_check_property(prop_db, pt, formula, prop_no);
+  return PropDb_check_property(prop_db, pt, Prop_Prove, formula, prop_no);
 }
 
 /*!
@@ -923,7 +923,7 @@ int CommandConvertPropertyToInvar(NuSMVEnv_ptr env, int argc, char** argv)
     else if (p_specified) {
       nusmv_assert(NULL != formula);
       nusmv_assert(Prop_NoType != pt);
-      property = Prop_create_from_string(env, formula, pt);
+      property = Prop_create_from_string(env, formula, pt, Prop_Prove);
       ls_status = lsNewEnd(props, (lsGeneric)property, LS_NH);
       nusmv_assert(LS_OK == ls_status);
       converted = Prop_convert_props_to_invar(prop_db, props);

@@ -244,10 +244,12 @@ Prop_ptr prop_rewriter_rewrite(Prop_Rewriter_ptr self)
 
   Prop_ptr retval = NULL;
   Prop_Type proptype = Prop_NoType;
+  Prop_Mode propmode = Prop_NoMode;
 
   PROP_CHECK_INSTANCE(self->original);
 
   proptype = Prop_get_type(self->original);
+  propmode = Prop_get_mode(self->original);
 
   Logger_vnlog_debug(logger, wffprint, opts, "Input property\n%N\n",
                      Prop_get_expr(self->original));
@@ -308,7 +310,7 @@ Prop_ptr prop_rewriter_rewrite(Prop_Rewriter_ptr self)
 
       outfh = FlatHierarchy_create(self->symb_table);
       formula = Prop_get_expr_core(self->original);
-      spec_type = PropType_to_node_type(Prop_get_type(self->original));
+      spec_type = PropType_to_node_type(Prop_get_type(self->original), Prop_get_mode(self->original));
 
       rewritten_formula =
         Wff_Rewrite_rewrite_formula_generic(env, self->method,
@@ -319,12 +321,24 @@ Prop_ptr prop_rewriter_rewrite(Prop_Rewriter_ptr self)
                                             self->ltl2invar_negate_property);
     }
 
-    nusmv_assert((INVARSPEC == PTR_TO_INT(Pair_get_second(rewritten_formula)) ||
-                  LTLSPEC == PTR_TO_INT(Pair_get_second(rewritten_formula))));
-    new_prop_type = (INVARSPEC == PTR_TO_INT(Pair_get_second(rewritten_formula))) ? \
-      Prop_Invar : Prop_Ltl;
+    switch (PTR_TO_INT(Pair_get_second(rewritten_formula))) {
+      case INVARSPEC:
+      case DISINVARSPEC:
+        new_prop_type = Prop_Invar;
+        break;
+      case LTLSPEC:
+      case DISLTLSPEC:
+        new_prop_type = Prop_Ltl;
+        break;
+      case ELTLSPEC:
+      case DISELTLSPEC:
+        new_prop_type = Prop_ELtl;
+        break;
+      default:
+        nusmv_assert(false);
+    }
     retval = Prop_create_partial(env, NODE_PTR(Pair_get_first(rewritten_formula)),
-                                 new_prop_type);
+                                 new_prop_type, propmode);
 
     Pair_destroy(rewritten_formula);
 

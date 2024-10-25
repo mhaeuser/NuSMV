@@ -173,6 +173,7 @@ typedef struct HrcDumperInfo_TAG {
 
   SymbCategory symb_cat; /* used for category of symbol(s) */
   Prop_Type spec_type; /* type of specification(s) */
+  Prop_Mode spec_mode;
 
   /* (only for list elements) true iff element is last of the list: */
   boolean last_in_list;

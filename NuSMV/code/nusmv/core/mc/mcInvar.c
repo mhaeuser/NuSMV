@@ -1377,6 +1377,13 @@ void print_invar(OStream_ptr file, Prop_ptr p, Prop_PrintFmt fmt)
   Prop_print(p, file, fmt);
 }
 
+void print_name_or_invar(OStream_ptr file, Prop_ptr p, Prop_PrintFmt fmt)
+{
+  OStream_printf(file, "invariant ");
+  Prop_print_name(p, file, fmt);
+  OStream_printf(file, " ");
+}
+
 /*!
   \brief Prints the result of the check if the check was performed,
    does nothing otherwise
@@ -1393,13 +1400,13 @@ static void print_result(NuSMVEnv_ptr env, Prop_ptr p)
   OptsHandler_ptr opts = OPTS_HANDLER(NuSMVEnv_get_value(env, ENV_OPTS_HANDLER));
 
   StreamMgr_print_output(streams,  "-- ");
-  print_invar(StreamMgr_get_output_ostream(streams),
+  print_name_or_invar(StreamMgr_get_output_ostream(streams),
               p, get_prop_print_method(opts));
 
   if (Prop_False == Prop_get_status(p)) {
-    StreamMgr_print_output(streams,  "is false\n");
+    StreamMgr_print_output(streams,  "is false [%s]\n", Prop_get_mode(p) != Prop_Prove ? "success" : "failure");
 
-    if (opt_counter_examples(opts)) {
+    if (opt_counter_examples(opts) && Prop_get_mode(p) != Prop_Disprove) {
       if (Prop_get_trace(p) > 0) {
         StreamMgr_print_output(streams,
                 "-- as demonstrated by the following execution sequence\n");
@@ -1415,7 +1422,7 @@ static void print_result(NuSMVEnv_ptr env, Prop_ptr p)
     }
   }
   else if(Prop_True == Prop_get_status(p)) {
-    StreamMgr_print_output(streams,  "is true\n");
+    StreamMgr_print_output(streams,  "is true [%s]\n", Prop_get_mode(p) != Prop_Prove ? "failure" : "success");
   }
   else if((Prop_Unchecked == Prop_get_status(p)) &&
           (Prop_get_trace(p) > 0)) {

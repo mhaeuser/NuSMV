@@ -194,12 +194,21 @@ void HrcNode_cleanup(HrcNode_ptr self)
   self->constants = Olist_create();
   FREELIST_AND_SET_TO_NIL(self->ctl_props);
   self->ctl_props = Olist_create();
+  FREELIST_AND_SET_TO_NIL(self->disctl_props);
+  self->disctl_props = Olist_create();
   FREELIST_AND_SET_TO_NIL(self->ltl_props);
   self->ltl_props = Olist_create();
+  FREELIST_AND_SET_TO_NIL(self->disltl_props);
+  self->disltl_props = Olist_create();
+  self->eltl_props = Olist_create();
+  FREELIST_AND_SET_TO_NIL(self->diseltl_props);
+  self->disltl_props = Olist_create();
   FREELIST_AND_SET_TO_NIL(self->psl_props);
   self->psl_props = Olist_create();
   FREELIST_AND_SET_TO_NIL(self->invar_props);
   self->invar_props = Olist_create();
+  FREELIST_AND_SET_TO_NIL(self->disinvar_props);
+  self->disinvar_props = Olist_create();
   FREELIST_AND_SET_TO_NIL(self->compute_props);
   self->compute_props = Olist_create();
 
@@ -973,6 +982,35 @@ void HrcNode_add_ctl_property_expr(HrcNode_ptr self, node_ptr ctl)
 #endif
 }
 
+void HrcNode_replace_disctl_properties(HrcNode_ptr self, Olist_ptr disctls)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+  nusmv_assert(OLIST(NULL) != disctls);
+
+  FREELIST_AND_SET_TO_NIL(self->disctl_props);
+
+  self->disctl_props = disctls;
+}
+
+Oiter HrcNode_get_disctl_properties_iter(const HrcNode_ptr self)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+
+  return Olist_first(self->disctl_props);
+}
+
+void HrcNode_add_disctl_property_expr(HrcNode_ptr self, node_ptr disctl)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+#if HRC_NODE_AVOID_DUPLICATION
+  if (!Olist_contains(self->disctl_props, disctl)) {
+    Olist_append(self->disctl_props, disctl);
+  }
+#else
+  Olist_append(self->disctl_props, disctl);
+#endif
+}
+
 void HrcNode_replace_ltl_properties(HrcNode_ptr self, Olist_ptr ltls)
 {
   HRC_NODE_CHECK_INSTANCE(self);
@@ -1001,6 +1039,99 @@ void HrcNode_add_ltl_property_expr(HrcNode_ptr self, node_ptr ltl)
   }
 #else
   Olist_append(self->ltl_props, ltl);
+#endif
+}
+
+void HrcNode_replace_disltl_properties(HrcNode_ptr self, Olist_ptr disltls)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+  nusmv_assert(OLIST(NULL) != disltls);
+
+  FREELIST_AND_SET_TO_NIL(self->disltl_props);
+
+  self->disltl_props = disltls;
+}
+
+Oiter HrcNode_get_disltl_properties_iter(const HrcNode_ptr self)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+
+  return Olist_first(self->disltl_props);
+}
+
+void HrcNode_add_disltl_property_expr(HrcNode_ptr self, node_ptr disltl)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+  nusmv_assert(Nil == disltl || DISLTLSPEC == node_get_type(disltl));
+
+#if HRC_NODE_AVOID_DUPLICATION
+  if (!Olist_contains(self->disltl_props, disltl)) {
+    Olist_append(self->disltl_props, disltl);
+  }
+#else
+  Olist_append(self->disltl_props, disltl);
+#endif
+}
+
+void HrcNode_replace_eltl_properties(HrcNode_ptr self, Olist_ptr eltls)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+  nusmv_assert(OLIST(NULL) != eltls);
+
+  FREELIST_AND_SET_TO_NIL(self->eltl_props);
+
+  self->eltl_props = eltls;
+}
+
+Oiter HrcNode_get_eltl_properties_iter(const HrcNode_ptr self)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+
+  return Olist_first(self->eltl_props);
+}
+
+void HrcNode_add_eltl_property_expr(HrcNode_ptr self, node_ptr eltl)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+  nusmv_assert(Nil == eltl || ELTLSPEC == node_get_type(eltl));
+
+#if HRC_NODE_AVOID_DUPLICATION
+  if (!Olist_contains(self->eltl_props, eltl)) {
+    Olist_append(self->eltl_props, eltl);
+  }
+#else
+  Olist_append(self->eltl_props, eltl);
+#endif
+}
+
+void HrcNode_replace_diseltl_properties(HrcNode_ptr self, Olist_ptr diseltls)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+  nusmv_assert(OLIST(NULL) != diseltls);
+
+  FREELIST_AND_SET_TO_NIL(self->diseltl_props);
+
+  self->diseltl_props = diseltls;
+}
+
+Oiter HrcNode_get_diseltl_properties_iter(const HrcNode_ptr self)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+
+  return Olist_first(self->diseltl_props);
+}
+
+void HrcNode_add_diseltl_property_expr(HrcNode_ptr self, node_ptr diseltl)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+  nusmv_assert(Nil == diseltl || DISELTLSPEC == node_get_type(diseltl));
+
+#if HRC_NODE_AVOID_DUPLICATION
+  if (!Olist_contains(self->diseltl_props, diseltl)) {
+    Olist_append(self->diseltl_props, diseltl);
+  }
+#else
+  Olist_append(self->diseltl_props, diseltl);
 #endif
 }
 
@@ -1060,6 +1191,35 @@ void HrcNode_add_invar_property_expr(HrcNode_ptr self, node_ptr invar)
   }
 #else
   Olist_append(self->invar_props, invar);
+#endif
+}
+
+void HrcNode_replace_disinvar_properties(HrcNode_ptr self, Olist_ptr disinvars)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+  nusmv_assert(OLIST(NULL) != disinvars);
+
+  FREELIST_AND_SET_TO_NIL(self->disinvar_props);
+
+  self->disinvar_props = disinvars;
+}
+
+Oiter HrcNode_get_disinvar_properties_iter(const HrcNode_ptr self)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+
+  return Olist_first(self->disinvar_props);
+}
+
+void HrcNode_add_disinvar_property_expr(HrcNode_ptr self, node_ptr disinvar)
+{
+  HRC_NODE_CHECK_INSTANCE(self);
+#if HRC_NODE_AVOID_DUPLICATION
+  if (!Olist_contains(self->disinvar_props, disinvar)) {
+    Olist_append(self->disinvar_props, disinvar);
+  }
+#else
+  Olist_append(self->disinvar_props, disinvar);
 #endif
 }
 
@@ -1256,9 +1416,14 @@ HrcNode_ptr HrcNode_copy(const HrcNode_ptr self)
   hrc_copy->justice = Olist_copy(self->justice);
   hrc_copy->constants = Olist_copy(self->constants);
   hrc_copy->ctl_props = Olist_copy(self->ctl_props);
+  hrc_copy->disctl_props = Olist_copy(self->disctl_props);
   hrc_copy->ltl_props = Olist_copy(self->ltl_props);
+  hrc_copy->disltl_props = Olist_copy(self->disltl_props);
+  hrc_copy->eltl_props = Olist_copy(self->eltl_props);
+  hrc_copy->diseltl_props = Olist_copy(self->diseltl_props);
   hrc_copy->psl_props = Olist_copy(self->psl_props);
   hrc_copy->invar_props = Olist_copy(self->invar_props);
+  hrc_copy->disinvar_props = Olist_copy(self->disinvar_props);
   hrc_copy->compute_props = Olist_copy(self->compute_props);
 
   /* List that must be deep copied, copying also list elements */
@@ -1670,8 +1835,13 @@ void hrc_node_init(HrcNode_ptr self, const NuSMVEnv_ptr env)
   self->compassion = Olist_create();
   self->constants = Olist_create();
   self->invar_props = Olist_create();
+  self->disinvar_props = Olist_create();
   self->ctl_props = Olist_create();
+  self->disctl_props = Olist_create();
   self->ltl_props = Olist_create();
+  self->disltl_props = Olist_create();
+  self->eltl_props = Olist_create();
+  self->diseltl_props = Olist_create();
   self->psl_props = Olist_create();
   self->compute_props = Olist_create();
   self->childs = Slist_create();
@@ -1710,9 +1880,14 @@ void hrc_node_deinit(HrcNode_ptr self)
   FREE_LIST_AND_SET_TO_NIL(self, self->compassion);
   FREELIST_AND_SET_TO_NIL(self->constants);
   FREELIST_AND_SET_TO_NIL(self->ctl_props);
+  FREELIST_AND_SET_TO_NIL(self->disctl_props);
   FREELIST_AND_SET_TO_NIL(self->ltl_props);
+  FREELIST_AND_SET_TO_NIL(self->disltl_props);
+  FREELIST_AND_SET_TO_NIL(self->eltl_props);
+  FREELIST_AND_SET_TO_NIL(self->diseltl_props);
   FREELIST_AND_SET_TO_NIL(self->psl_props);
   FREELIST_AND_SET_TO_NIL(self->invar_props);
+  FREELIST_AND_SET_TO_NIL(self->disinvar_props);
   FREELIST_AND_SET_TO_NIL(self->compute_props);
 
   /* here the hrc_node_free_list_and_clear_assign_map is not used so

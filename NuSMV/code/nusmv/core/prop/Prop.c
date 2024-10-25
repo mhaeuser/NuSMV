@@ -144,7 +144,7 @@ Prop_ptr Prop_create(const NuSMVEnv_ptr env)
   return self;
 }
 
-Prop_ptr Prop_create_partial(const NuSMVEnv_ptr env, Expr_ptr expr, Prop_Type type)
+Prop_ptr Prop_create_partial(const NuSMVEnv_ptr env, Expr_ptr expr, Prop_Type type, Prop_Mode mode)
 {
   Prop_ptr self = Prop_create(env);
   PROP_CHECK_INSTANCE(self);
@@ -153,6 +153,7 @@ Prop_ptr Prop_create_partial(const NuSMVEnv_ptr env, Expr_ptr expr, Prop_Type ty
   self->status = Prop_Unchecked;
   self->prop = expr;
   self->type = type;
+  self->mode = mode;
 
   return self;
 }
@@ -172,6 +173,7 @@ Prop_ptr Prop_copy(Prop_ptr input)
   /* the cone is just referenced in the property */
   self->cone = input->cone;
   self->type = input->type;
+  self->mode = input->mode;
   self->status = input->status;
   self->number = input->number;
   self->trace = input->trace;
@@ -185,6 +187,7 @@ Prop_ptr Prop_copy(Prop_ptr input)
 
   OVERRIDE(Prop, get_expr) = input->get_expr;
   OVERRIDE(Prop, get_type_as_string) = input->get_type_as_string;
+  OVERRIDE(Prop, get_mode_as_string) = input->get_mode_as_string;
   OVERRIDE(Prop, print) = input->print;
   OVERRIDE(Prop, print_truncated) = input->print_truncated;
   OVERRIDE(Prop, print_db_tabular) = input->print_db_tabular;
@@ -195,7 +198,7 @@ Prop_ptr Prop_copy(Prop_ptr input)
   return self;
 }
 
-Prop_ptr Prop_create_from_string(NuSMVEnv_ptr env, char* str, Prop_Type type)
+Prop_ptr Prop_create_from_string(NuSMVEnv_ptr env, char* str, Prop_Type type, Prop_Mode mode)
 {
   const StreamMgr_ptr streams =
     STREAM_MGR(NuSMVEnv_get_value(env, ENV_STREAM_MANAGER));
@@ -218,6 +221,7 @@ Prop_ptr Prop_create_from_string(NuSMVEnv_ptr env, char* str, Prop_Type type)
   switch (type) {
   case Prop_Ctl:
   case Prop_Ltl:
+  case Prop_ELtl:
   case Prop_Psl:
   case Prop_Invar:
   case Prop_Compute:
@@ -290,6 +294,7 @@ Prop_ptr Prop_create_from_string(NuSMVEnv_ptr env, char* str, Prop_Type type)
 
   self->prop = property;
   self->type = type;
+  self->mode = mode;
 
   return self;
 }
@@ -362,6 +367,13 @@ Prop_Type Prop_get_type(const Prop_ptr self)
   PROP_CHECK_INSTANCE(self);
 
   return self->type ;
+}
+
+Prop_Mode Prop_get_mode(const Prop_ptr self)
+{
+  PROP_CHECK_INSTANCE(self);
+
+  return self->mode ;
 }
 
 Prop_Status Prop_get_status(const Prop_ptr self)
@@ -973,6 +985,12 @@ VIRTUAL const char* Prop_get_type_as_string(Prop_ptr self)
   return self->get_type_as_string(self);
 }
 
+VIRTUAL const char* Prop_get_mode_as_string(Prop_ptr self)
+{
+  PROP_CHECK_INSTANCE(self);
+  return self->get_mode_as_string(self);
+}
+
 const char* Prop_get_status_as_string(const Prop_ptr self)
 {
   char* res = (char*) NULL;
@@ -1015,6 +1033,25 @@ int Prop_check_type(const Prop_ptr self, Prop_Type type)
               "but a different type (%d) was expected.\n",
               Prop_get_type_as_string(self), type);
     }
+    return 1;
+  }
+
+  return 0;
+}
+
+int Prop_check_mode(const Prop_ptr self, Prop_Mode mode)
+{
+  PROP_CHECK_INSTANCE(self);
+
+  if (Prop_get_mode(self) != mode) {
+    const NuSMVEnv_ptr env = EnvObject_get_environment(ENV_OBJECT(self));
+    const StreamMgr_ptr streams =
+      STREAM_MGR(NuSMVEnv_get_value(env, ENV_STREAM_MANAGER));
+
+    StreamMgr_print_error(streams,
+            "Error: specified property mode is %s, "
+            "but type %s was expected.\n",
+            Prop_get_mode_as_string(self), PropMode_to_string(mode));
     return 1;
   }
 
@@ -1065,6 +1102,17 @@ VIRTUAL void Prop_print(const Prop_ptr self, OStream_ptr file, Prop_PrintFmt fmt
   }
 }
 
+void Prop_print_name(const Prop_ptr self, OStream_ptr file, Prop_PrintFmt fmt)
+{
+  char *name = Prop_get_name_as_string(self);
+  if (name != NULL && name[0] != '\0') {
+    OStream_printf(file, "%s", name);
+  } else {
+    Prop_print(self, file, fmt);
+  }
+  free(name);
+}
+
 VIRTUAL void Prop_print_db(const Prop_ptr self, OStream_ptr file,
                            PropDb_PrintFmt fmt)
 {
@@ -1103,7 +1151,7 @@ boolean Prop_is_psl_obe(const Prop_ptr self)
   return (Prop_get_type(self) == Prop_Psl) && PslNode_is_obe(self->prop);
 }
 
-Set_t Prop_set_from_formula_list(NuSMVEnv_ptr env, node_ptr list, Prop_Type type)
+Set_t Prop_set_from_formula_list(NuSMVEnv_ptr env, node_ptr list, Prop_Type type, Prop_Mode mode)
 {
   Set_t retval;
   node_ptr iter;
@@ -1118,7 +1166,7 @@ Set_t Prop_set_from_formula_list(NuSMVEnv_ptr env, node_ptr list, Prop_Type type
 
     element = car(iter);
 
-    prop = Prop_create_partial(env, element, type);
+    prop = Prop_create_partial(env, element, type, mode);
 
     retval = Set_AddMember(retval, (Set_Element_t)prop);
   }
@@ -1221,6 +1269,7 @@ void prop_init(Prop_ptr self, const NuSMVEnv_ptr env)
   self->prop = EXPR(NULL);
   self->cone = (Set_t) Set_MakeEmpty();
   self->type = Prop_NoType;
+  self->mode = Prop_NoMode;
   self->status = Prop_NoStatus;
   self->number = PROP_UNCHECKED;
   self->trace = 0;
@@ -1235,6 +1284,7 @@ void prop_init(Prop_ptr self, const NuSMVEnv_ptr env)
 
   OVERRIDE(Prop, get_expr) = prop_get_expr;
   OVERRIDE(Prop, get_type_as_string) = prop_get_type_as_string;
+  OVERRIDE(Prop, get_mode_as_string) = prop_get_type_as_string;
   OVERRIDE(Prop, print) = prop_print;
   OVERRIDE(Prop, print_truncated) = prop_print_truncated;
   OVERRIDE(Prop, print_db_tabular) = prop_print_db_tabular;
@@ -1291,6 +1341,12 @@ Expr_ptr prop_get_expr(const Prop_ptr self)
 const char* prop_get_type_as_string(const Prop_ptr self)
 {
   return PropType_to_string(Prop_get_type(self));
+}
+
+
+const char* prop_get_mode_as_string(const Prop_ptr self)
+{
+  return PropMode_to_string(Prop_get_mode(self));
 }
 
 
@@ -1514,6 +1570,7 @@ void prop_verify(Prop_ptr self)
     case Prop_Invar:    Mc_CheckInvar(env, self); break;
 
     case Prop_Ltl:      Ltl_CheckLtlSpec(env, self); break;
+    case Prop_ELtl:     Ltl_CheckLtlSpec(env, self); break;
 
     case Prop_Psl:
       if (Prop_is_psl_ltl(self)) { Ltl_CheckLtlSpec(env, self); }
@@ -1546,6 +1603,7 @@ const char* PropType_to_string(const Prop_Type type)
   case Prop_NoType:  res = PROP_NOTYPE_STRING; break;
   case Prop_Ctl:     res = PROP_CTL_STRING; break;
   case Prop_Ltl:     res = PROP_LTL_STRING; break;
+  case Prop_ELtl:    res = PROP_ELTL_STRING; break;
   case Prop_Psl:     res = PROP_PSL_STRING; break;
   case Prop_Invar:   res = PROP_INVAR_STRING; break;
   case Prop_Compute: res = PROP_COMPUTE_STRING; break;
@@ -1556,16 +1614,65 @@ const char* PropType_to_string(const Prop_Type type)
   return res;
 }
 
-short int PropType_to_node_type(const Prop_Type type)
+short int PropType_to_node_type(const Prop_Type type, const Prop_Mode mode)
 {
   short int res = 0;
 
   switch (type) {
-  case Prop_Ctl:     res = SPEC; break;
-  case Prop_Ltl:     res = LTLSPEC; break;
-  case Prop_Psl:     res = PSLSPEC; break;
-  case Prop_Invar:   res = INVARSPEC; break;
-  case Prop_Compute: res = COMPUTE; break;
+  case Prop_Ctl:
+    switch (mode) {
+    case Prop_Prove:
+      res = SPEC;
+      break;
+    case Prop_Disprove:
+      res = DISSPEC;
+      break;
+    default:
+      error_unreachable_code();
+    }
+    break;
+  case Prop_Ltl:
+    switch (mode) {
+    case Prop_Prove:
+      res = LTLSPEC;
+      break;
+    case Prop_Disprove:
+      res = DISLTLSPEC;
+      break;
+    default:
+      error_unreachable_code();
+    }
+    break;
+  case Prop_ELtl:
+    switch (mode) {
+    case Prop_Prove:
+      res = ELTLSPEC;
+      break;
+    case Prop_Disprove:
+      res = DISELTLSPEC;
+      break;
+    default:
+      error_unreachable_code();
+    }
+    break;
+  case Prop_Psl:
+    res = PSLSPEC;
+    break;
+  case Prop_Invar:
+    switch (mode) {
+    case Prop_Prove:
+      res = INVARSPEC;
+      break;
+    case Prop_Disprove:
+      res = DISINVARSPEC;
+      break;
+    default:
+      error_unreachable_code();
+    }
+    break;
+  case Prop_Compute:
+    res = COMPUTE;
+    break;
 
   case Prop_CompId: error_unreachable_code_msg("COMPID unhandled!\n");
 
@@ -1591,6 +1698,20 @@ const char* PropType_to_parsing_string(const Prop_Type type)
   }
 
   return "SIMPWFF ";
+}
+
+const char* PropMode_to_string(const Prop_Mode mode)
+{
+  char* res = (char*) NULL;
+
+  switch (mode) {
+  case Prop_NoMode:   res = PROP_NOMODE_STRING; break;
+  case Prop_Prove:    res = PROP_PROVE_STRING; break;
+  case Prop_Disprove: res = PROP_DISPROVE_STRING; break;
+  default: error_unreachable_code();
+  }
+
+  return res;
 }
 
 
@@ -1709,6 +1830,7 @@ Prop_ptr prop_convert_to_invar(Prop_ptr self)
     expr = prop_is_ltl_convertible_to_invar(self);
     break;
 
+  case Prop_ELtl:
   case Prop_Compute:
   case Prop_Invar:
   case Prop_Psl:
@@ -1718,7 +1840,7 @@ Prop_ptr prop_convert_to_invar(Prop_ptr self)
   }
 
   if (NULL != expr) {
-    retval = Prop_create_partial(env, expr, Prop_Invar);
+    retval = Prop_create_partial(env, expr, Prop_Invar, Prop_get_mode(self));
   }
   else retval = NULL;
 
